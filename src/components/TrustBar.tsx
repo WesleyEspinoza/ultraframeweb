@@ -1,8 +1,9 @@
 "use client";
 import { motion } from "framer-motion";
-import { ShieldCheck, RefreshCw, Lock, LifeBuoy, Download } from "lucide-react";
+import { ShieldCheck, RefreshCw, Lock, LifeBuoy, Download, FlaskConical } from "lucide-react";
 
 const TRUST = [
+  { icon: FlaskConical, label: "Public Beta", sub: "Updates & features still shipping" },
   { icon: ShieldCheck, label: "Restore-First", sub: "System restore point created before changes" },
   { icon: RefreshCw, label: "Reversible", sub: "Restore point lets you undo changes" },
   { icon: Lock, label: "No Subscription", sub: "Pay once, own it forever" },
@@ -14,7 +15,7 @@ export default function TrustBar() {
   return (
     <div className="relative py-10 px-6 border-y border-slate-900" aria-label="Trust signals">
       <div className="max-w-7xl mx-auto">
-        <ul className="grid grid-cols-2 md:grid-cols-5 gap-6 list-none p-0 m-0">
+        <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 list-none p-0 m-0">
           {TRUST.map((t, i) => (
             <motion.li
               key={i}

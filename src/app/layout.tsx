@@ -1,9 +1,10 @@
+import ClarityAnalytics from "@/components/ClarityAnalytics";
 import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UltraFrame Optimizer | Windows 10/11 Gaming Performance",
-  description: "Get important Windows settings dialed in the first time. UltraFrame Optimizer helps your PC feel cleaner and more responsive without a reinstall.",
+  title: "UltraFrame Optimizer (Public Beta) | Windows 10/11 Gaming Performance",
+  description: "Public beta: guided Windows 10/11 gaming optimizations with planned updates and new features. Get important settings dialed in without a reinstall.",
   keywords: ["Windows optimizer", "gaming performance", "game optimization", "Windows 11 optimization", "PC optimizer", "gaming PC"],
   openGraph: {
     title: "UltraFrame Optimizer",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to main content
         </a>
+        <ClarityAnalytics />
         {children}
       </body>
     </html>

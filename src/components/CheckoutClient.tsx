@@ -1,5 +1,7 @@
 "use client";
 
+import { ClarityEvents } from "@/lib/clarity-events";
+import { setClarityTag, trackClarityEvent } from "@/lib/clarity";
 import { useEffect, useState } from "react";
 
 type CatalogResponse = {
@@ -35,6 +37,11 @@ export default function CheckoutClient() {
             savings: data.savings,
             sale: data.sale,
           });
+          trackClarityEvent(ClarityEvents.CHECKOUT_CATALOG_VIEW);
+          if (data.displayPrice != null) {
+            setClarityTag("checkout_display_price", String(data.displayPrice));
+          }
+          if (data.sale?.active) setClarityTag("checkout_sale", "true");
         }
       } catch (e) {
         if (!cancelled) {
@@ -52,12 +59,14 @@ export default function CheckoutClient() {
   async function startCheckout() {
     setLoading(true);
     setError(null);
+    trackClarityEvent(ClarityEvents.CHECKOUT_BEGIN);
     try {
       const res = await fetch("/api/stripe/create-checkout-session", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Unable to start checkout.");
       window.location.href = data.url;
     } catch (e) {
+      trackClarityEvent(ClarityEvents.CHECKOUT_ERROR);
       setError(e instanceof Error ? e.message : "Unable to start checkout.");
       setLoading(false);
     }

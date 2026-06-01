@@ -2,7 +2,10 @@
 
 import { useLicenseReveal } from "@/hooks/useLicenseReveal";
 import { useLicenseSession } from "@/hooks/useLicenseSession";
+import { ClarityEvents } from "@/lib/clarity-events";
+import { clarityUpgradeSession, trackClarityEvent } from "@/lib/clarity";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import ErrorAlert from "./ErrorAlert";
 import LicenseActionButtons from "./LicenseActionButtons";
 import LicenseKeyDisplay from "./LicenseKeyDisplay";
@@ -13,6 +16,29 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
     useLicenseSession(sessionId);
   const { license, loading: revealLoading, error: revealError, expired } =
     useLicenseReveal(state === "token_received" ? revealToken : null);
+
+  const trackedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (license && trackedRef.current !== license.key) {
+      trackedRef.current = license.key;
+      trackClarityEvent(ClarityEvents.LICENSE_REVEALED);
+      trackClarityEvent(ClarityEvents.PURCHASE_SUCCESS);
+      clarityUpgradeSession("license_revealed");
+    }
+  }, [license]);
+
+  useEffect(() => {
+    if (state === "already_revealed") {
+      trackClarityEvent(ClarityEvents.LICENSE_ALREADY_REVEALED);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    if (revealError) {
+      trackClarityEvent(ClarityEvents.LICENSE_REVEAL_ERROR);
+    }
+  }, [revealError]);
 
   if (!sessionId) {
     return (

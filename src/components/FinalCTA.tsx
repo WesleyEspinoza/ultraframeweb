@@ -1,6 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
+import { ClarityEvents } from "@/lib/clarity-events";
+import { trackClarityEvent } from "@/lib/clarity";
+import BrandIcon from "@/components/BrandIcon";
 
 export default function FinalCTA() {
   return (
@@ -18,7 +20,7 @@ export default function FinalCTA() {
           className="inline-flex items-center justify-center w-16 h-16 rounded-full border mb-8"
           style={{ borderColor: "rgba(0,245,255,0.4)", background: "rgba(0,245,255,0.07)", boxShadow: "0 0 40px rgba(0,245,255,0.2)" }}
         >
-          <Zap className="w-7 h-7 fill-current" style={{ color: "var(--neon-cyan)" }} />
+          <BrandIcon size={28} className="rounded-md" />
         </motion.div>
 
         <motion.h2
@@ -51,6 +53,7 @@ export default function FinalCTA() {
         >
           <a
             href="/checkout"
+            onClick={() => trackClarityEvent(ClarityEvents.CTA_GET_NOW)}
             className="group relative inline-block px-12 py-5 font-display text-sm font-extrabold tracking-widest uppercase text-black rounded-xl transition-all duration-300 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
             style={{ background: "var(--neon-cyan)", boxShadow: "0 0 60px rgba(0,245,255,0.5), 0 8px 30px rgba(0,0,0,0.5)" }}
           >
@@ -64,7 +67,7 @@ export default function FinalCTA() {
           transition={{ delay: 0.45 }}
           className="mt-8 text-xs font-mono text-slate-700 tracking-widest"
         >
-          INSTANT DOWNLOAD AFTER PURCHASE · NO SUBSCRIPTION · ONE-TIME PAYMENT
+          PUBLIC BETA · UPDATES & FEATURES ON THE WAY · ONE-TIME PAYMENT
         </motion.p>
       </div>
     </section>

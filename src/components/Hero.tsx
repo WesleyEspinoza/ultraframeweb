@@ -1,7 +1,11 @@
 "use client";
 import { motion } from "framer-motion";
-import { ChevronDown, Zap } from "lucide-react";
+import BrandIcon from "@/components/BrandIcon";
+import BetaBanner from "@/components/BetaBanner";
+import { ChevronDown } from "lucide-react";
 import saleConfig from "@/config/sale.json";
+import { ClarityEvents } from "@/lib/clarity-events";
+import { trackClarityEvent } from "@/lib/clarity";
 
 const STATS = [
   { value: "Easy Install", label: "Guided setup" },
@@ -53,17 +57,41 @@ export default function Hero() {
             <span className="block text-xs font-normal mt-1">{saleConfig.body}</span>
           </motion.div>
         )}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="w-full max-w-2xl mb-4"
+        >
+          <BetaBanner />
+        </motion.div>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-8 text-xs font-mono tracking-widest uppercase"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-6 text-xs font-mono tracking-widest uppercase"
           style={{ borderColor: "rgba(0,245,255,0.3)", background: "rgba(0,245,255,0.05)", color: "var(--neon-cyan)" }}
         >
-          <Zap className="w-3 h-3 fill-current" aria-hidden="true" />
           Windows 10 &amp; 11 Optimizer · Now with AI Assistant
-          <Zap className="w-3 h-3 fill-current" aria-hidden="true" />
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.28, duration: 0.5 }}
+          className="relative mb-8"
+        >
+          <div
+            className="absolute inset-0 blur-2xl opacity-40 rounded-full scale-110"
+            style={{ background: "radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%)" }}
+            aria-hidden="true"
+          />
+          <BrandIcon
+            size={112}
+            priority
+            className="relative mx-auto rounded-2xl ring-1 ring-cyan-400/30 shadow-[0_0_48px_rgba(0,245,255,0.25)]"
+          />
+        </motion.div>
 
         {/* Main headline */}
         <motion.h1
@@ -110,6 +138,7 @@ export default function Hero() {
         >
           <a
             href="/checkout"
+            onClick={() => trackClarityEvent(ClarityEvents.CTA_GET_NOW)}
             className="group relative px-10 py-4 font-display text-sm font-bold tracking-widest uppercase text-black rounded transition-all duration-300 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
             style={{ background: "var(--neon-cyan)", boxShadow: "0 0 40px rgba(0,245,255,0.4), 0 4px 20px rgba(0,0,0,0.4)" }}
           >
@@ -118,6 +147,7 @@ export default function Hero() {
           </a>
           <a
             href="/license/manage"
+            onClick={() => trackClarityEvent(ClarityEvents.CTA_MANAGE_DEVICES)}
             className="px-10 py-4 font-display text-sm font-bold tracking-widest uppercase text-slate-300 rounded border border-slate-700 hover:border-cyan-500/50 hover:text-white transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
           >
             Manage Devices

@@ -1,7 +1,10 @@
 "use client";
 import { motion } from "framer-motion";
 import { Check, Zap } from "lucide-react";
+import BetaBanner from "@/components/BetaBanner";
 import saleConfig from "@/config/sale.json";
+import { ClarityEvents } from "@/lib/clarity-events";
+import { trackClarityEvent } from "@/lib/clarity";
 
 const SINGLE_PLAN = {
   name: "UltraFrame",
@@ -137,6 +140,7 @@ export default function Pricing() {
 
               <a
                 href="/checkout"
+                onClick={() => trackClarityEvent(ClarityEvents.CTA_GET_NOW)}
                 className="block text-center py-3.5 px-6 rounded-lg font-display text-xs font-bold tracking-widest uppercase transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400 text-black"
                 style={{ background: "var(--neon-cyan)", boxShadow: "0 0 30px rgba(0,245,255,0.3)" }}
                 aria-label={`${SINGLE_PLAN.cta} — $${formatPrice(currentPrice)} one-time`}
@@ -147,12 +151,19 @@ export default function Pricing() {
           </div>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+          transition={{ delay: 0.35 }}
+          className="max-w-2xl mx-auto mt-10"
+        >
+          <BetaBanner compact />
+        </motion.div>
         <motion.p
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="text-center text-slate-700 text-sm font-mono mt-10"
+          className="text-center text-slate-700 text-sm font-mono mt-6"
         >
-          🔒 Secure checkout · One key for up to 3 computers · Lifetime updates while product support remains active
+          Secure checkout · One key for up to 3 computers · Updates included during active development
         </motion.p>
       </div>
     </section>

@@ -1,3 +1,4 @@
+import BetaBanner from "@/components/BetaBanner";
 import CheckoutClient from "@/components/CheckoutClient";
 import { buildCatalogPricing } from "@/lib/catalog-pricing";
 import { formatUsd } from "@/lib/sale";
@@ -53,9 +54,10 @@ export default async function CheckoutPage() {
         </p>
         <h1 className="font-display text-3xl font-bold text-white mb-2">{productName}</h1>
         {priceBlock}
+        <BetaBanner compact className="mb-6" />
         <p className="text-slate-400 mb-8 leading-relaxed">
-          One license activates on up to 3 Windows PCs. Includes lifetime updates for as long as
-          UltraFrame is supported. After payment, you&apos;ll return here to download the installer.
+          One license activates on up to 3 Windows PCs. Includes updates while UltraFrame is in
+          active development. After payment, you&apos;ll reveal your license and download the installer.
         </p>
 
         <CheckoutClient />

@@ -5,6 +5,8 @@ import {
   INSTALLER_DOWNLOAD_URL,
   INSTALLER_FILENAME,
 } from "@/lib/installer-download";
+import { ClarityEvents } from "@/lib/clarity-events";
+import { trackClarityEvent } from "@/lib/clarity";
 import { Download, Loader2, Monitor, Trash2 } from "lucide-react";
 import { useState } from "react";
 import ErrorAlert from "./ErrorAlert";
@@ -45,6 +47,7 @@ export default function LicenseManagePanel() {
     setLoaded(true);
     const ok = await loadDevices();
     setAuthenticated(ok);
+    if (ok) trackClarityEvent(ClarityEvents.LICENSE_MANAGE_AUTH);
   }
 
   function handleCredentialChange() {
@@ -55,7 +58,10 @@ export default function LicenseManagePanel() {
     e.preventDefault();
     clearError();
     const ok = await activateDevice(machineId);
-    if (ok) setMachineId("");
+    if (ok) {
+      setMachineId("");
+      trackClarityEvent(ClarityEvents.LICENSE_DEVICE_ACTIVATE);
+    }
   }
 
   return (
@@ -126,6 +132,7 @@ export default function LicenseManagePanel() {
           </div>
           <a
             href={INSTALLER_DOWNLOAD_URL}
+            onClick={() => trackClarityEvent(ClarityEvents.INSTALLER_DOWNLOAD)}
             className="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-display text-xs font-bold tracking-widest uppercase text-black shrink-0"
             style={{ background: "var(--neon-cyan, #00f5ff)" }}
           >
@@ -167,7 +174,11 @@ export default function LicenseManagePanel() {
                   <button
                     type="button"
                     disabled={actionLoading}
-                    onClick={() => removeDevice(device.machineId)}
+                    onClick={() => {
+                      void removeDevice(device.machineId).then((ok) => {
+                        if (ok) trackClarityEvent(ClarityEvents.LICENSE_DEVICE_REMOVE);
+                      });
+                    }}
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-red-400/30 text-red-300 text-xs font-mono uppercase tracking-wider hover:bg-red-400/10 disabled:opacity-50 shrink-0"
                   >
                     {actionLoading ? (

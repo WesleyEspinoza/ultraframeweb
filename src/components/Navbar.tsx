@@ -1,7 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Menu, X } from "lucide-react";
+import BrandIcon from "@/components/BrandIcon";
+import BetaBadge from "@/components/BetaBadge";
+import { ClarityEvents } from "@/lib/clarity-events";
+import { trackClarityEvent } from "@/lib/clarity";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -41,12 +45,13 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2 group" aria-label="UltraFrame — go to top">
           <div className="relative" aria-hidden="true">
-            <Zap className="w-6 h-6 text-neon-cyan fill-current" style={{ color: "var(--neon-cyan)" }} />
-            <div className="absolute inset-0 blur-md bg-cyan-400 opacity-50 group-hover:opacity-80 transition-opacity" />
+            <BrandIcon size={28} className="rounded-md" />
+            <div className="absolute inset-0 blur-md bg-cyan-400 opacity-50 group-hover:opacity-80 transition-opacity rounded-md" />
           </div>
           <span className="font-display text-sm font-bold tracking-widest text-white uppercase">
             Ultra<span style={{ color: "var(--neon-cyan)" }}>Frame</span>
           </span>
+          <BetaBadge />
         </a>
 
         {/* Desktop nav */}
@@ -56,6 +61,11 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               role="listitem"
+              onClick={() => {
+                if (l.href === "/license/manage") {
+                  trackClarityEvent(ClarityEvents.CTA_MANAGE_DEVICES);
+                }
+              }}
               className="text-sm text-slate-400 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent rounded transition-colors duration-200 font-mono tracking-wide relative group"
             >
               {l.label}
@@ -64,6 +74,7 @@ export default function Navbar() {
           ))}
           <a
             href="/checkout"
+            onClick={() => trackClarityEvent(ClarityEvents.CTA_GET_NOW)}
             className="px-5 py-2 text-sm font-display font-semibold tracking-widest uppercase text-black rounded border transition-all duration-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
             style={{ background: "var(--neon-cyan)", borderColor: "var(--neon-cyan)", boxShadow: "0 0 20px rgba(0,245,255,0.3)" }}
           >
@@ -99,7 +110,12 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 className="text-slate-300 font-mono text-sm py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  if (l.href === "/license/manage") {
+                    trackClarityEvent(ClarityEvents.CTA_MANAGE_DEVICES);
+                  }
+                  setOpen(false);
+                }}
               >
                 {l.label}
               </a>
@@ -108,7 +124,10 @@ export default function Navbar() {
               href="/checkout"
               className="px-5 py-2 text-sm font-display font-semibold tracking-widest uppercase text-black rounded text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
               style={{ background: "var(--neon-cyan)" }}
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                trackClarityEvent(ClarityEvents.CTA_GET_NOW);
+                setOpen(false);
+              }}
             >
               Get Now
             </a>

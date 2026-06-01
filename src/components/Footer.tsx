@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Zap } from "lucide-react";
+import BrandIcon from "@/components/BrandIcon";
 import EulaModal from "./EulaModal";
 
 export default function Footer() {
@@ -22,7 +22,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
           {/* Wordmark */}
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 fill-current" style={{ color: "var(--neon-cyan)" }} aria-hidden="true" />
+            <BrandIcon size={20} className="rounded-sm" />
             <span className="font-display text-xs tracking-widest uppercase text-white">
               Ultra<span style={{ color: "var(--neon-cyan)" }}>Frame</span>
             </span>
@@ -62,7 +62,8 @@ export default function Footer() {
         {/* Legal disclaimer */}
         <div className="max-w-7xl mx-auto border-t border-slate-900 pt-5">
           <p className="text-slate-800 text-xs font-mono leading-relaxed text-center max-w-4xl mx-auto">
-            UltraFrame is a Windows configuration tool. Results vary by system hardware, software configuration, and usage. Individual results are not guaranteed.
+            UltraFrame is a Windows configuration tool currently in public beta; features and behavior may change as updates ship.
+            Results vary by system hardware, software configuration, and usage. Individual results are not guaranteed.
             Use at your own risk. Always maintain backups before applying system changes.
             UltraFrame is not affiliated with or endorsed by Microsoft Corporation.
             Windows is a registered trademark of Microsoft Corporation.

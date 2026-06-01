@@ -13,6 +13,7 @@ export const ClarityEvents = {
   INSTALLER_DOWNLOAD: "installer_download",
   CTA_GET_NOW: "cta_get_now",
   CTA_MANAGE_DEVICES: "cta_manage_devices",
+  HELP_FORM_SUBMIT: "help_form_submit",
 } as const;
 
 export type ClarityEventName = (typeof ClarityEvents)[keyof typeof ClarityEvents];

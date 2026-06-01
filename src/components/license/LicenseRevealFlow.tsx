@@ -76,7 +76,11 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
       <div className="space-y-6">
         <p className="text-slate-300 leading-relaxed">
           This license has already been revealed. Use the email from your purchase to manage devices,
-          or contact support if you need help recovering access.
+          or{" "}
+          <a href="/help" className="text-cyan-400 hover:text-cyan-300 underline">
+            contact support
+          </a>{" "}
+          if you need help recovering access.
         </p>
         <LicenseActionButtons sessionId={sessionId} />
       </div>

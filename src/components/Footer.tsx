@@ -10,7 +10,7 @@ export default function Footer() {
     { label: "Manage Devices", href: "/license/manage" },
     { label: "Privacy", href: "#" },
     { label: "Terms", action: () => setEulaOpen(true) },
-    { label: "Contact", href: "#" },
+    { label: "Help", href: "/help" },
   ];
 
   return (

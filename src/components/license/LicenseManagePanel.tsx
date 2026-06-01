@@ -1,7 +1,11 @@
 "use client";
 
 import { useLicenseManage } from "@/hooks/useLicenseManage";
-import { Loader2, Monitor, Trash2 } from "lucide-react";
+import {
+  INSTALLER_DOWNLOAD_URL,
+  INSTALLER_FILENAME,
+} from "@/lib/installer-download";
+import { Download, Loader2, Monitor, Trash2 } from "lucide-react";
 import { useState } from "react";
 import ErrorAlert from "./ErrorAlert";
 import Spinner from "./Spinner";
@@ -22,6 +26,7 @@ export default function LicenseManagePanel() {
   const [licenseKey, setLicenseKey] = useState("");
   const [machineId, setMachineId] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
 
   const {
     devices,
@@ -38,7 +43,12 @@ export default function LicenseManagePanel() {
   async function handleLoad(e: React.FormEvent) {
     e.preventDefault();
     setLoaded(true);
-    await loadDevices();
+    const ok = await loadDevices();
+    setAuthenticated(ok);
+  }
+
+  function handleCredentialChange() {
+    setAuthenticated(false);
   }
 
   async function handleActivate(e: React.FormEvent) {
@@ -67,7 +77,10 @@ export default function LicenseManagePanel() {
             autoComplete="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              handleCredentialChange();
+            }}
             className="w-full px-4 py-2.5 rounded-lg bg-black/30 border border-white/10 text-slate-200 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
             placeholder="you@example.com"
           />
@@ -81,7 +94,10 @@ export default function LicenseManagePanel() {
             type="text"
             required
             value={licenseKey}
-            onChange={(e) => setLicenseKey(e.target.value)}
+            onChange={(e) => {
+              setLicenseKey(e.target.value);
+              handleCredentialChange();
+            }}
             className="w-full px-4 py-2.5 rounded-lg bg-black/30 border border-white/10 text-slate-200 text-sm font-mono focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
             placeholder="UF-XXXX-XXXX-XXXX-XXXX"
           />
@@ -98,13 +114,34 @@ export default function LicenseManagePanel() {
 
       {error && <ErrorAlert message={error} />}
 
+      {authenticated && (
+        <div className="rounded-xl border border-white/10 bg-white/5 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="font-display text-xs font-bold uppercase tracking-widest text-white mb-1">
+              Installer
+            </p>
+            <p className="text-sm text-slate-500">
+              Download or reinstall {INSTALLER_FILENAME} on a Windows PC.
+            </p>
+          </div>
+          <a
+            href={INSTALLER_DOWNLOAD_URL}
+            className="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-display text-xs font-bold tracking-widest uppercase text-black shrink-0"
+            style={{ background: "var(--neon-cyan, #00f5ff)" }}
+          >
+            <Download className="w-4 h-4" aria-hidden="true" />
+            Download app
+          </a>
+        </div>
+      )}
+
       {deviceLimitReached && (
         <p className="text-sm text-amber-300/90 font-mono">
           Maximum of 3 active devices per license. Remove a device to register another.
         </p>
       )}
 
-      {loaded && !loading && (
+      {authenticated && !loading && (
         <section className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4">
           <h2 className="font-display text-sm font-bold uppercase tracking-widest text-white flex items-center gap-2">
             <Monitor className="w-4 h-4 text-cyan-400" aria-hidden="true" />
@@ -147,7 +184,7 @@ export default function LicenseManagePanel() {
         </section>
       )}
 
-      {loaded && (
+      {authenticated && (
         <form
           onSubmit={handleActivate}
           className="rounded-xl border border-white/10 bg-white/5 p-6 space-y-4"

@@ -15,7 +15,7 @@ export type UseLicenseManageResult = {
   actionLoading: boolean;
   error: string | null;
   deviceLimitReached: boolean;
-  loadDevices: () => Promise<void>;
+  loadDevices: () => Promise<boolean>;
   activateDevice: (machineId: string) => Promise<boolean>;
   removeDevice: (machineId: string) => Promise<boolean>;
   clearError: () => void;
@@ -33,10 +33,10 @@ export function useLicenseManage(
 
   const clearError = useCallback(() => setError(null), []);
 
-  const loadDevices = useCallback(async () => {
+  const loadDevices = useCallback(async (): Promise<boolean> => {
     if (!email.trim() || !licenseKey.trim()) {
       setError("Email and license key are required.");
-      return;
+      return false;
     }
 
     setLoading(true);
@@ -46,6 +46,7 @@ export function useLicenseManage(
     try {
       const data = await listLicenseDevices(email.trim(), licenseKey.trim());
       setDevices(data.activeDevices ?? []);
+      return true;
     } catch (e) {
       setDevices([]);
       setError(
@@ -53,6 +54,7 @@ export function useLicenseManage(
           ? e.message
           : "Unable to load devices. Check your connection and try again."
       );
+      return false;
     } finally {
       setLoading(false);
     }

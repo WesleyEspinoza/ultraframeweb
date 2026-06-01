@@ -1,8 +1,7 @@
 import { buildCatalogPricing } from "@/lib/catalog-pricing";
 import {
   buildPromoPricePreview,
-  promotionCodeErrorMessage,
-  resolvePromotionCodeByCustomerCode,
+  resolvePromotionCode,
 } from "@/lib/stripe-promotion-code";
 import { resolveStripeCatalog } from "@/lib/stripe-catalog";
 import { NextResponse } from "next/server";
@@ -35,19 +34,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const resolved = await resolvePromotionCodeByCustomerCode(code);
-    if (!resolved) {
-      return NextResponse.json(
-        { error: promotionCodeErrorMessage(code) },
-        { status: 404 }
-      );
+    const resolved = await resolvePromotionCode(code);
+    if (!resolved.ok) {
+      return NextResponse.json({ error: resolved.message }, { status: 404 });
     }
 
-    const preview = buildPromoPricePreview(pricing.unitAmount, resolved);
+    const preview = buildPromoPricePreview(pricing.unitAmount, resolved.data);
 
     return NextResponse.json({
       valid: true,
-      code: resolved.code,
+      code: resolved.data.code,
+      promotionCodeId: resolved.data.promotionCodeId,
       discountLabel: preview.discountLabel,
       compareAtPrice: preview.compareAtPrice,
       displayPrice: preview.displayPrice,

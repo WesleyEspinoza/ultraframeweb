@@ -25,10 +25,17 @@ export function applyCouponToUnitAmountCents(
   return { discountedCents: unitAmountCents, savingsCents: 0 };
 }
 
+export function formatPromoPrice(amount: number | null | undefined): string {
+  if (amount == null) return "—";
+  if (amount <= 0) return "Free";
+  return `$${amount.toFixed(2)}`;
+}
+
 export function describeCouponDiscount(
   coupon: Pick<Stripe.Coupon, "percent_off" | "amount_off" | "name">
 ): string {
   if (coupon.percent_off != null) {
+    if (coupon.percent_off >= 100) return "Free";
     return `${coupon.percent_off}% off`;
   }
   if (coupon.amount_off != null) {

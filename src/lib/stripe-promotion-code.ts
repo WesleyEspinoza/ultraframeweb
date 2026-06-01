@@ -21,28 +21,49 @@ export type PromoPricePreview = {
   discountLabel: string;
 };
 
+type ResolveResult =
+  | { ok: true; data: ResolvedPromotionCode }
+  | { ok: false; message: string };
+
 export async function resolvePromotionCodeByCustomerCode(
-  customerCode: string
+  input: string
 ): Promise<ResolvedPromotionCode | null> {
-  const code = customerCode.trim();
-  if (!code) return null;
+  const result = await resolvePromotionCode(input);
+  return result.ok ? result.data : null;
+}
+
+export async function resolvePromotionCode(input: string): Promise<ResolveResult> {
+  const trimmed = input.trim();
+  if (!trimmed) {
+    return { ok: false, message: "Enter a promotion code." };
+  }
 
   const stripe = getStripeClient();
-  const list = await stripe.promotionCodes.list({
-    code,
-    active: true,
-    limit: 1,
-  });
+  const listed = await findPromotionCode(stripe, trimmed);
 
-  const listed = list.data[0];
-  if (!listed?.code) return null;
+  if (!listed) {
+    return {
+      ok: false,
+      message: `${promotionCodeErrorMessage(trimmed)} Make sure the code was created in the same Stripe mode (Test vs Live) as your API keys.`,
+    };
+  }
+
+  if (!listed.active) {
+    return {
+      ok: false,
+      message: `Promotion code "${listed.code ?? trimmed}" is inactive in Stripe.`,
+    };
+  }
 
   const promo = await stripe.promotionCodes.retrieve(listed.id, {
     expand: ["coupon"],
   });
 
   if (promo.expires_at != null && promo.expires_at * 1000 < Date.now()) {
-    return null;
+    return {
+      ok: false,
+      message: `Promotion code "${promo.code}" has expired.`,
+    };
   }
 
   if (
@@ -50,29 +71,108 @@ export async function resolvePromotionCodeByCustomerCode(
     promo.times_redeemed != null &&
     promo.times_redeemed >= promo.max_redemptions
   ) {
-    return null;
+    return {
+      ok: false,
+      message: `Promotion code "${promo.code}" has reached its redemption limit.`,
+    };
   }
 
-  const coupon = getExpandedCoupon(promo);
+  const coupon = await loadCouponForPromotion(stripe, promo);
   if (!coupon || coupon.valid === false) {
-    return null;
+    return {
+      ok: false,
+      message: `The coupon linked to "${promo.code}" is not valid.`,
+    };
   }
 
   return {
-    promotionCodeId: promo.id,
-    code: promo.code,
-    coupon,
-    discountLabel: describeCouponDiscount(coupon),
+    ok: true,
+    data: {
+      promotionCodeId: promo.id,
+      code: promo.code,
+      coupon,
+      discountLabel: describeCouponDiscount(coupon),
+    },
   };
 }
 
-function getExpandedCoupon(
+async function findPromotionCode(
+  stripe: Stripe,
+  input: string
+): Promise<Stripe.PromotionCode | null> {
+  if (input.startsWith("promo_")) {
+    try {
+      return await stripe.promotionCodes.retrieve(input);
+    } catch (error) {
+      if (isStripeResourceMissing(error)) return null;
+      throw error;
+    }
+  }
+
+  const variants = [input, input.toLowerCase(), input.toUpperCase()];
+  const seen = new Set<string>();
+
+  for (const code of variants) {
+    if (seen.has(code)) continue;
+    seen.add(code);
+
+    const list = await stripe.promotionCodes.list({ code, limit: 1 });
+    if (list.data[0]) return list.data[0];
+  }
+
+  const target = input.toLowerCase();
+  let startingAfter: string | undefined;
+
+  for (let page = 0; page < 5; page++) {
+    const list = await stripe.promotionCodes.list({
+      limit: 100,
+      starting_after: startingAfter,
+    });
+
+    const match = list.data.find((p) => p.code?.toLowerCase() === target);
+    if (match) return match;
+
+    if (!list.has_more || list.data.length === 0) break;
+    startingAfter = list.data[list.data.length - 1]?.id;
+  }
+
+  return null;
+}
+
+async function loadCouponForPromotion(
+  stripe: Stripe,
   promo: Stripe.PromotionCode
-): Stripe.Coupon | null {
-  const raw = (promo as Stripe.PromotionCode & { coupon?: Stripe.Coupon | string })
+): Promise<Stripe.Coupon | null> {
+  const expanded = (promo as Stripe.PromotionCode & { coupon?: Stripe.Coupon | string })
     .coupon;
-  if (!raw || typeof raw === "string") return null;
-  return raw;
+
+  if (expanded && typeof expanded !== "string") {
+    return expanded;
+  }
+
+  const couponId =
+    typeof expanded === "string"
+      ? expanded
+      : (promo as Stripe.PromotionCode & { promotion?: { coupon?: string } }).promotion
+          ?.coupon;
+
+  if (!couponId) return null;
+
+  try {
+    return await stripe.coupons.retrieve(couponId);
+  } catch (error) {
+    if (isStripeResourceMissing(error)) return null;
+    throw error;
+  }
+}
+
+function isStripeResourceMissing(error: unknown): boolean {
+  return (
+    error != null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === "resource_missing"
+  );
 }
 
 export function buildPromoPricePreview(
@@ -95,5 +195,5 @@ export function buildPromoPricePreview(
 }
 
 export function promotionCodeErrorMessage(customerCode: string): string {
-  return `Promotion code "${customerCode.trim()}" is invalid, expired, or no longer available.`;
+  return `Promotion code "${customerCode.trim()}" was not found.`;
 }

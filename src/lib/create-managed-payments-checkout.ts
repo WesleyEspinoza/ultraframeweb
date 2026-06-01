@@ -1,9 +1,6 @@
 import { isCheckoutSaleActive } from "@/lib/catalog-pricing";
 import { getSalePricing } from "@/lib/sale";
-import {
-  promotionCodeErrorMessage,
-  resolvePromotionCodeByCustomerCode,
-} from "@/lib/stripe-promotion-code";
+import { resolvePromotionCode } from "@/lib/stripe-promotion-code";
 import { resolveSaleCouponId } from "@/lib/stripe-sale";
 import { getAppUrl, getManagedPaymentsStripeClient } from "@/lib/stripe";
 import { resolveStripeCatalog } from "@/lib/stripe-catalog";
@@ -39,11 +36,11 @@ export async function createManagedPaymentsCheckoutSession(
   const promoInput = options.promotionCode?.trim();
 
   if (promoInput) {
-    const resolved = await resolvePromotionCodeByCustomerCode(promoInput);
-    if (!resolved) {
-      throw new Error(promotionCodeErrorMessage(promoInput));
+    const resolved = await resolvePromotionCode(promoInput);
+    if (!resolved.ok) {
+      throw new Error(resolved.message);
     }
-    params.discounts = [{ promotion_code: resolved.promotionCodeId }];
+    params.discounts = [{ promotion_code: resolved.data.promotionCodeId }];
   } else if (isCheckoutSaleActive(catalog) && catalog.unitAmount != null) {
     const sale = getSalePricing(catalog.unitAmount);
     if (sale) {

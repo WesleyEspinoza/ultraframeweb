@@ -4,7 +4,7 @@ import { useLicenseReveal } from "@/hooks/useLicenseReveal";
 import { useLicenseSession } from "@/hooks/useLicenseSession";
 import { ClarityEvents } from "@/lib/clarity-events";
 import { clarityUpgradeSession, trackClarityEvent } from "@/lib/clarity";
-import Link from "next/link";
+import BackLink from "@/components/BackLink";
 import { useEffect, useRef } from "react";
 import ErrorAlert from "./ErrorAlert";
 import LicenseActionButtons from "./LicenseActionButtons";
@@ -112,11 +112,5 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
     }
   }
 
-  return (
-    <p className="text-slate-500 text-sm">
-      <Link href="/" className="text-cyan-400 hover:underline">
-        Return to homepage
-      </Link>
-    </p>
-  );
+  return <BackLink />;
 }

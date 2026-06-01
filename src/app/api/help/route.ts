@@ -1,4 +1,8 @@
-import { getEmailConfig, isAllowedRequestOrigin } from "@/lib/email-config";
+import {
+  getEmailConfig,
+  getMissingEmailEnvVars,
+  isAllowedRequestOrigin,
+} from "@/lib/email-config";
 import { parseHelpFormBody } from "@/lib/help-form-validation";
 import { sendHelpEmail } from "@/lib/send-help-email";
 import { NextResponse } from "next/server";
@@ -13,8 +17,17 @@ export async function POST(request: Request) {
 
   const config = getEmailConfig();
   if (!config) {
+    const missing = getMissingEmailEnvVars();
+    const isDev = process.env.NODE_ENV === "development";
     return NextResponse.json(
-      { error: "Help email is not configured. Please try again later." },
+      {
+        error: "Help email is not configured. Please try again later.",
+        ...(isDev && missing.length > 0
+          ? {
+              hint: `Set these in .env or .env.local and restart the dev server: ${missing.join(", ")}`,
+            }
+          : {}),
+      },
       { status: 503 }
     );
   }

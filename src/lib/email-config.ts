@@ -7,11 +7,28 @@ export type EmailConfig = {
   allowedOrigin: string | null;
 };
 
+function readEnvValue(name: string): string {
+  let value = process.env[name]?.trim() ?? "";
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim();
+  }
+  return value;
+}
+
+/** Names of required env vars that are missing (for diagnostics only). */
+export function getMissingEmailEnvVars(): string[] {
+  const required = ["EMAIL_HOST", "EMAIL_USER", "EMAIL_PASS", "TO_EMAIL"] as const;
+  return required.filter((key) => !readEnvValue(key));
+}
+
 export function getEmailConfig(): EmailConfig | null {
-  const host = process.env.EMAIL_HOST?.trim();
-  const user = process.env.EMAIL_USER?.trim();
-  const pass = process.env.EMAIL_PASS?.replace(/\s+/g, "");
-  const toEmail = process.env.TO_EMAIL?.trim();
+  const host = readEnvValue("EMAIL_HOST");
+  const user = readEnvValue("EMAIL_USER");
+  const pass = readEnvValue("EMAIL_PASS").replace(/\s+/g, "");
+  const toEmail = readEnvValue("TO_EMAIL");
 
   if (!host || !user || !pass || !toEmail) {
     return null;

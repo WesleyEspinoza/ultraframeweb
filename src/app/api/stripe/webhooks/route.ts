@@ -1,3 +1,4 @@
+import { queueLicenseEmailDelivery } from "@/lib/license-email-delivery";
 import { getStripeClient, getStripeWebhookSecret } from "@/lib/stripe";
 import { recordCompletedCheckout } from "@/lib/stripe-orders";
 import { headers } from "next/headers";
@@ -28,6 +29,9 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     await recordCompletedCheckout(session);
+    if (session.id) {
+      queueLicenseEmailDelivery(session.id);
+    }
   }
 
   return NextResponse.json({ received: true });

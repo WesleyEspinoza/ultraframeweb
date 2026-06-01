@@ -30,3 +30,9 @@ stripe listen --forward-to localhost:3000/api/stripe/webhooks
 ```
 
 Sale pricing is controlled by `src/config/sale.json`.
+
+## Stripe promotion codes
+
+Create coupons and promotion codes in the [Stripe Dashboard](https://dashboard.stripe.com/coupons) (use **test mode** while developing). Customers enter codes on `/checkout`; the site validates via `/api/stripe/validate-promo` and applies the code when starting checkout. If no code is entered and `sale.json` is off, Stripe Checkout also shows a promotion code field.
+
+Promotion codes do not stack with the automatic `sale.json` discount — an entered code replaces the site-wide sale for that session.

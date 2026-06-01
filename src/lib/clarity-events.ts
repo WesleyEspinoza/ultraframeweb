@@ -3,6 +3,7 @@ export const ClarityEvents = {
   CHECKOUT_BEGIN: "checkout_begin",
   CHECKOUT_ERROR: "checkout_error",
   CHECKOUT_CATALOG_VIEW: "checkout_catalog_view",
+  PROMO_CODE_APPLIED: "promo_code_applied",
   PURCHASE_SUCCESS: "purchase_success",
   LICENSE_REVEALED: "license_revealed",
   LICENSE_ALREADY_REVEALED: "license_already_revealed",

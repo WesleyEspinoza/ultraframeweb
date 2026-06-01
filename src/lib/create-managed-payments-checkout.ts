@@ -1,5 +1,9 @@
 import { isCheckoutSaleActive } from "@/lib/catalog-pricing";
 import { getSalePricing } from "@/lib/sale";
+import {
+  promotionCodeErrorMessage,
+  resolvePromotionCodeByCustomerCode,
+} from "@/lib/stripe-promotion-code";
 import { resolveSaleCouponId } from "@/lib/stripe-sale";
 import { getAppUrl, getManagedPaymentsStripeClient } from "@/lib/stripe";
 import { resolveStripeCatalog } from "@/lib/stripe-catalog";
@@ -10,7 +14,14 @@ export type CheckoutSessionResult = {
   url: string;
 };
 
-export async function createManagedPaymentsCheckoutSession(): Promise<CheckoutSessionResult> {
+export type CreateCheckoutOptions = {
+  /** Customer-facing Stripe promotion code (e.g. LAUNCH20). */
+  promotionCode?: string;
+};
+
+export async function createManagedPaymentsCheckoutSession(
+  options: CreateCheckoutOptions = {}
+): Promise<CheckoutSessionResult> {
   const catalog = await resolveStripeCatalog();
   const priceId = catalog.priceId;
 
@@ -25,12 +36,23 @@ export async function createManagedPaymentsCheckoutSession(): Promise<CheckoutSe
     cancel_url: `${appUrl}/checkout/cancel`,
   } as Stripe.Checkout.SessionCreateParams;
 
-  if (isCheckoutSaleActive(catalog) && catalog.unitAmount != null) {
+  const promoInput = options.promotionCode?.trim();
+
+  if (promoInput) {
+    const resolved = await resolvePromotionCodeByCustomerCode(promoInput);
+    if (!resolved) {
+      throw new Error(promotionCodeErrorMessage(promoInput));
+    }
+    params.discounts = [{ promotion_code: resolved.promotionCodeId }];
+  } else if (isCheckoutSaleActive(catalog) && catalog.unitAmount != null) {
     const sale = getSalePricing(catalog.unitAmount);
     if (sale) {
       const couponId = await resolveSaleCouponId(sale.discountPercent);
       params.discounts = [{ coupon: couponId }];
     }
+  } else {
+    // Let customers enter a Stripe promotion code on the hosted checkout page.
+    params.allow_promotion_codes = true;
   }
 
   const session = await stripe.checkout.sessions.create(params);

@@ -106,7 +106,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.75 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
+          className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center items-center mb-20"
         >
           <a
             href="/checkout"
@@ -115,6 +115,12 @@ export default function Hero() {
           >
             <span className="relative z-10">Get UltraFrame</span>
             <div className="absolute inset-0 translate-x-full group-hover:translate-x-0 transition-transform duration-300" style={{ background: "var(--neon-green)" }} aria-hidden="true" />
+          </a>
+          <a
+            href="/license/manage"
+            className="px-10 py-4 font-display text-sm font-bold tracking-widest uppercase text-slate-300 rounded border border-slate-700 hover:border-cyan-500/50 hover:text-white transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
+          >
+            Manage Devices
           </a>
           <a
             href="#how-it-works"

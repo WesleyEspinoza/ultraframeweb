@@ -7,6 +7,7 @@ export default function Footer() {
   const [eulaOpen, setEulaOpen] = useState(false);
 
   const links: { label: string; action?: () => void; href?: string }[] = [
+    { label: "Manage Devices", href: "/license/manage" },
     { label: "Privacy", href: "#" },
     { label: "Terms", action: () => setEulaOpen(true) },
     { label: "Contact", href: "#" },

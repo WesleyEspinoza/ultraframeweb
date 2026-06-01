@@ -21,10 +21,11 @@ export default function Navbar() {
   }, []);
 
   const links = [
-    { label: "Features",    href: "#features" },
+    { label: "Features", href: "#features" },
     { label: "How It Works", href: "#how-it-works" },
-    { label: "Pricing",     href: "#pricing" },
-    { label: "FAQ",         href: "#faq" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
+    { label: "Manage Devices", href: "/license/manage" },
   ];
 
   return (

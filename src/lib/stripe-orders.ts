@@ -1,6 +1,7 @@
-import fs from "fs/promises";
-import path from "path";
+import { readJsonFile, writeJsonFile } from "@/lib/local-data-store";
 import type Stripe from "stripe";
+
+const ORDERS_FILENAME = "completed-checkouts.json";
 
 export type CompletedCheckoutRecord = {
   checkoutSessionId: string;
@@ -12,20 +13,13 @@ export type CompletedCheckoutRecord = {
   completedAt: string;
 };
 
-const ORDERS_PATH = path.join(process.cwd(), "data", "completed-checkouts.json");
-
 export async function isCompletedCheckout(sessionId: string): Promise<boolean> {
   const orders = await listCompletedCheckouts();
   return orders.some((o) => o.checkoutSessionId === sessionId);
 }
 
 export async function listCompletedCheckouts(): Promise<CompletedCheckoutRecord[]> {
-  try {
-    const raw = await fs.readFile(ORDERS_PATH, "utf8");
-    return JSON.parse(raw) as CompletedCheckoutRecord[];
-  } catch {
-    return [];
-  }
+  return (await readJsonFile<CompletedCheckoutRecord[]>(ORDERS_FILENAME)) ?? [];
 }
 
 export async function recordCompletedCheckout(
@@ -53,12 +47,7 @@ export async function recordCompletedCheckout(
   );
   withoutDuplicate.push(record);
 
-  await fs.mkdir(path.dirname(ORDERS_PATH), { recursive: true });
-  await fs.writeFile(
-    ORDERS_PATH,
-    JSON.stringify(withoutDuplicate, null, 2),
-    "utf8"
-  );
+  await writeJsonFile(ORDERS_FILENAME, withoutDuplicate);
 
   return record;
 }

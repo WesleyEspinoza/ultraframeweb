@@ -1,5 +1,4 @@
 import { getStripeClient } from "@/lib/stripe";
-import { readStripeCatalog, writeStripeCatalog, type StripeCatalog } from "@/lib/stripe-catalog";
 
 const COUPON_NAME_PREFIX = "UltraFrame sale";
 
@@ -8,31 +7,15 @@ export async function resolveSaleCouponId(discountPercent: number): Promise<stri
   const fromEnv = process.env.STRIPE_SALE_COUPON_ID?.trim();
   if (fromEnv) return fromEnv;
 
-  const catalog = await readStripeCatalog();
-  if (
-    catalog?.saleCouponId &&
-    catalog.saleDiscountPercent === discountPercent
-  ) {
-    return catalog.saleCouponId;
-  }
-
   const stripe = getStripeClient();
   const existing = await findCouponByPercent(discountPercent);
-  const coupon =
-    existing ??
-    (await stripe.coupons.create({
-      percent_off: discountPercent,
-      duration: "once",
-      name: `${COUPON_NAME_PREFIX} ${discountPercent}%`,
-    }));
+  if (existing) return existing.id;
 
-  if (catalog) {
-    await writeStripeCatalog({
-      ...catalog,
-      saleCouponId: coupon.id,
-      saleDiscountPercent: discountPercent,
-    });
-  }
+  const coupon = await stripe.coupons.create({
+    percent_off: discountPercent,
+    duration: "once",
+    name: `${COUPON_NAME_PREFIX} ${discountPercent}%`,
+  });
 
   return coupon.id;
 }
@@ -60,18 +43,4 @@ async function findCouponByPercent(discountPercent: number) {
   }
 
   return null;
-}
-
-export async function attachSaleCouponToCatalog(
-  catalog: StripeCatalog,
-  discountPercent: number
-): Promise<StripeCatalog> {
-  const saleCouponId = await resolveSaleCouponId(discountPercent);
-  const updated: StripeCatalog = {
-    ...catalog,
-    saleCouponId,
-    saleDiscountPercent: discountPercent,
-  };
-  await writeStripeCatalog(updated);
-  return updated;
 }

@@ -1,6 +1,7 @@
 import { getStripeClient } from "@/lib/stripe";
-import fs from "fs/promises";
-import path from "path";
+import { readJsonFile, writeJsonFile } from "@/lib/local-data-store";
+
+const CATALOG_FILENAME = "stripe-catalog.json";
 
 export type StripeCatalog = {
   productId: string;
@@ -13,20 +14,12 @@ export type StripeCatalog = {
   saleDiscountPercent?: number;
 };
 
-const CATALOG_PATH = path.join(process.cwd(), "data", "stripe-catalog.json");
-
 export async function readStripeCatalog(): Promise<StripeCatalog | null> {
-  try {
-    const raw = await fs.readFile(CATALOG_PATH, "utf8");
-    return JSON.parse(raw) as StripeCatalog;
-  } catch {
-    return null;
-  }
+  return readJsonFile<StripeCatalog>(CATALOG_FILENAME);
 }
 
 export async function writeStripeCatalog(catalog: StripeCatalog): Promise<void> {
-  await fs.mkdir(path.dirname(CATALOG_PATH), { recursive: true });
-  await fs.writeFile(CATALOG_PATH, JSON.stringify(catalog, null, 2), "utf8");
+  await writeJsonFile(CATALOG_FILENAME, catalog);
 }
 
 function catalogFromEnv(): Pick<StripeCatalog, "productId" | "priceId"> | null {
@@ -58,7 +51,7 @@ export async function fetchCatalogFromStripe(
   };
 }
 
-/** Resolve live catalog: env IDs → Stripe API → local data file. */
+/** Resolve catalog from env (production) or optional local cache (dev). */
 export async function resolveStripeCatalog(): Promise<StripeCatalog> {
   const env = catalogFromEnv();
   if (env) {
@@ -79,7 +72,7 @@ export async function resolveStripeCatalog(): Promise<StripeCatalog> {
   }
 
   throw new Error(
-    "Stripe catalog not configured. Set STRIPE_PRICE_ID (and optionally STRIPE_PRODUCT_ID) in .env."
+    "Stripe catalog not configured. Set STRIPE_PRICE_ID (and optionally STRIPE_PRODUCT_ID) in your hosting environment."
   );
 }
 

@@ -50,11 +50,11 @@ export default function FinalCTA() {
           transition={{ delay: 0.3 }}
         >
           <a
-            href="#pricing"
+            href="/checkout"
             className="group relative inline-block px-12 py-5 font-display text-sm font-extrabold tracking-widest uppercase text-black rounded-xl transition-all duration-300 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
             style={{ background: "var(--neon-cyan)", boxShadow: "0 0 60px rgba(0,245,255,0.5), 0 8px 30px rgba(0,0,0,0.5)" }}
           >
-            <span className="relative z-10">Start Optimizing Now</span>
+            <span className="relative z-10">Get UltraFrame</span>
             <div className="absolute inset-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300" style={{ background: "linear-gradient(135deg, var(--neon-green), var(--neon-cyan))" }} aria-hidden="true" />
           </a>
         </motion.div>
@@ -64,7 +64,7 @@ export default function FinalCTA() {
           transition={{ delay: 0.45 }}
           className="mt-8 text-xs font-mono text-slate-700 tracking-widest"
         >
-          INSTANT DOWNLOAD · NO SUBSCRIPTION · ONE-TIME PAYMENT
+          INSTANT DOWNLOAD AFTER PURCHASE · NO SUBSCRIPTION · ONE-TIME PAYMENT
         </motion.p>
       </div>
     </section>

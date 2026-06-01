@@ -109,11 +109,11 @@ export default function Hero() {
           className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
         >
           <a
-            href="#pricing"
+            href="/checkout"
             className="group relative px-10 py-4 font-display text-sm font-bold tracking-widest uppercase text-black rounded transition-all duration-300 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
             style={{ background: "var(--neon-cyan)", boxShadow: "0 0 40px rgba(0,245,255,0.4), 0 4px 20px rgba(0,0,0,0.4)" }}
           >
-            <span className="relative z-10">Optimize My PC</span>
+            <span className="relative z-10">Get UltraFrame</span>
             <div className="absolute inset-0 translate-x-full group-hover:translate-x-0 transition-transform duration-300" style={{ background: "var(--neon-green)" }} aria-hidden="true" />
           </a>
           <a

@@ -1,0 +1,35 @@
+import { buildCatalogPricing } from "@/lib/catalog-pricing";
+import { resolveStripeCatalog } from "@/lib/stripe-catalog";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+    const catalog = await resolveStripeCatalog();
+    const pricing = buildCatalogPricing(catalog);
+
+    return NextResponse.json({
+      productId: catalog.productId,
+      priceId: catalog.priceId,
+      productName: pricing.productName,
+      unitAmount: pricing.unitAmount,
+      currency: pricing.currency,
+      compareAtPrice: pricing.compareAtPrice,
+      displayPrice: pricing.displayPrice,
+      savings: pricing.savings,
+      sale: pricing.sale
+        ? {
+            active: true,
+            title: pricing.sale.title,
+            discountPercent: pricing.sale.discountPercent,
+            compareAtPrice: pricing.sale.compareAtPrice,
+            displayPrice: pricing.sale.displayPrice,
+            savings: pricing.sale.savings,
+          }
+        : null,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load catalog.";
+    const status = message.includes("STRIPE_SECRET_KEY") || message.includes("not configured") ? 503 : 500;
+    return NextResponse.json({ error: message }, { status });
+  }
+}

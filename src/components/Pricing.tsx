@@ -136,7 +136,7 @@ export default function Pricing() {
               </ul>
 
               <a
-                href="#"
+                href="/checkout"
                 className="block text-center py-3.5 px-6 rounded-lg font-display text-xs font-bold tracking-widest uppercase transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400 text-black"
                 style={{ background: "var(--neon-cyan)", boxShadow: "0 0 30px rgba(0,245,255,0.3)" }}
                 aria-label={`${SINGLE_PLAN.cta} — $${formatPrice(currentPrice)} one-time`}

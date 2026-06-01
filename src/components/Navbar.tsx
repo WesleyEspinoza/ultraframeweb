@@ -62,7 +62,7 @@ export default function Navbar() {
             </a>
           ))}
           <a
-            href="#pricing"
+            href="/checkout"
             className="px-5 py-2 text-sm font-display font-semibold tracking-widest uppercase text-black rounded border transition-all duration-300 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
             style={{ background: "var(--neon-cyan)", borderColor: "var(--neon-cyan)", boxShadow: "0 0 20px rgba(0,245,255,0.3)" }}
           >
@@ -104,7 +104,7 @@ export default function Navbar() {
               </a>
             ))}
             <a
-              href="#pricing"
+              href="/checkout"
               className="px-5 py-2 text-sm font-display font-semibold tracking-widest uppercase text-black rounded text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
               style={{ background: "var(--neon-cyan)" }}
               onClick={() => setOpen(false)}

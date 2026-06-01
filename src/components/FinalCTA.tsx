@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { ClarityEvents } from "@/lib/clarity-events";
 import { trackClarityEvent } from "@/lib/clarity";
-import BrandIcon from "@/components/BrandIcon";
+import { Zap } from "lucide-react";
 
 export default function FinalCTA() {
   return (
@@ -20,7 +20,7 @@ export default function FinalCTA() {
           className="inline-flex items-center justify-center w-16 h-16 rounded-full border mb-8"
           style={{ borderColor: "rgba(0,245,255,0.4)", background: "rgba(0,245,255,0.07)", boxShadow: "0 0 40px rgba(0,245,255,0.2)" }}
         >
-          <BrandIcon size={28} className="rounded-md" />
+          <Zap className="w-7 h-7 fill-current" style={{ color: "var(--neon-cyan)" }} />
         </motion.div>
 
         <motion.h2

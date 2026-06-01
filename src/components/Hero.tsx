@@ -1,8 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import BrandIcon from "@/components/BrandIcon";
 import BetaBanner from "@/components/BetaBanner";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Zap } from "lucide-react";
 import saleConfig from "@/config/sale.json";
 import { ClarityEvents } from "@/lib/clarity-events";
 import { trackClarityEvent } from "@/lib/clarity";
@@ -72,7 +71,9 @@ export default function Hero() {
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-6 text-xs font-mono tracking-widest uppercase"
           style={{ borderColor: "rgba(0,245,255,0.3)", background: "rgba(0,245,255,0.05)", color: "var(--neon-cyan)" }}
         >
+          <Zap className="w-3 h-3 fill-current" aria-hidden="true" />
           Windows 10 &amp; 11 Optimizer · Now with AI Assistant
+          <Zap className="w-3 h-3 fill-current" aria-hidden="true" />
         </motion.p>
 
         <motion.div
@@ -80,16 +81,15 @@ export default function Hero() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.28, duration: 0.5 }}
           className="relative mb-8"
+          aria-hidden="true"
         >
           <div
             className="absolute inset-0 blur-2xl opacity-40 rounded-full scale-110"
             style={{ background: "radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%)" }}
-            aria-hidden="true"
           />
-          <BrandIcon
-            size={112}
-            priority
-            className="relative mx-auto rounded-2xl ring-1 ring-cyan-400/30 shadow-[0_0_48px_rgba(0,245,255,0.25)]"
+          <Zap
+            className="relative w-20 h-20 md:w-24 md:h-24 mx-auto fill-current"
+            style={{ color: "var(--neon-cyan)", filter: "drop-shadow(0 0 32px rgba(0,245,255,0.45))" }}
           />
         </motion.div>
 

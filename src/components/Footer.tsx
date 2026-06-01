@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import BrandIcon from "@/components/BrandIcon";
+import { Zap } from "lucide-react";
 import EulaModal from "./EulaModal";
 
 export default function Footer() {
@@ -22,7 +22,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
           {/* Wordmark */}
           <div className="flex items-center gap-2">
-            <BrandIcon size={20} className="rounded-sm" />
+            <Zap className="w-5 h-5 fill-current" style={{ color: "var(--neon-cyan)" }} aria-hidden="true" />
             <span className="font-display text-xs tracking-widest uppercase text-white">
               Ultra<span style={{ color: "var(--neon-cyan)" }}>Frame</span>
             </span>

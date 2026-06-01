@@ -1,11 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import BrandIcon from "@/components/BrandIcon";
 import BetaBadge from "@/components/BetaBadge";
 import { ClarityEvents } from "@/lib/clarity-events";
 import { trackClarityEvent } from "@/lib/clarity";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Zap } from "lucide-react";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -45,8 +44,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <a href="#" className="flex items-center gap-2 group" aria-label="UltraFrame — go to top">
           <div className="relative" aria-hidden="true">
-            <BrandIcon size={28} className="rounded-md" />
-            <div className="absolute inset-0 blur-md bg-cyan-400 opacity-50 group-hover:opacity-80 transition-opacity rounded-md" />
+            <Zap className="w-6 h-6 fill-current" style={{ color: "var(--neon-cyan)" }} />
+            <div className="absolute inset-0 blur-md bg-cyan-400 opacity-50 group-hover:opacity-80 transition-opacity" />
           </div>
           <span className="font-display text-sm font-bold tracking-widest text-white uppercase">
             Ultra<span style={{ color: "var(--neon-cyan)" }}>Frame</span>

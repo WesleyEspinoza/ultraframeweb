@@ -1,4 +1,4 @@
-import { getEmailConfig } from "@/lib/email-config";
+import { getEmailConfig, getEmailConfigErrorMessage } from "@/lib/email-config";
 import { maskEmail } from "@/lib/email-transport";
 import {
   fetchLicenseSessionUpstream,
@@ -43,7 +43,7 @@ export async function deliverLicenseEmailForCheckout(
 ): Promise<LicenseEmailDeliveryResult> {
   const config = getEmailConfig();
   if (!config) {
-    return { status: "error", message: "Email is not configured on the server." };
+    return { status: "error", message: getEmailConfigErrorMessage("license") };
   }
 
   let purchase;

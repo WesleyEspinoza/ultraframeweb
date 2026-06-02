@@ -7,8 +7,10 @@ export type EmailConfig = {
   allowedOrigin: string | null;
 };
 
-function readEnvValue(name: string): string {
-  let value = process.env[name]?.trim() ?? "";
+/** Read env at runtime — bracket access avoids Next.js inlining undefined at build time. */
+function readRuntimeEnv(name: string): string {
+  const raw = process.env[name] ?? "";
+  let value = typeof raw === "string" ? raw.trim() : "";
   if (
     (value.startsWith('"') && value.endsWith('"')) ||
     (value.startsWith("'") && value.endsWith("'"))
@@ -18,42 +20,94 @@ function readEnvValue(name: string): string {
   return value;
 }
 
+function readFirstRuntimeEnv(names: string[]): string {
+  for (const name of names) {
+    const value = readRuntimeEnv(name);
+    if (value) return value;
+  }
+  return "";
+}
+
+export function isHostedRuntime(): boolean {
+  return Boolean(
+    process.env.NETLIFY ||
+      process.env.NETLIFY_DEV ||
+      process.env.CONTEXT ||
+      process.env.NETLIFY_SITE_ID ||
+      process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME
+  );
+}
+
+const EMAIL_ENV_KEYS = [
+  { key: "EMAIL_HOST", aliases: ["SMTP_HOST"] },
+  { key: "EMAIL_USER", aliases: ["SMTP_USER"] },
+  { key: "EMAIL_PASS", aliases: ["SMTP_PASS", "SMTP_PASSWORD"] },
+  { key: "TO_EMAIL", aliases: ["EMAIL_TO", "SMTP_TO"] },
+] as const;
+
 /** Names of required env vars that are missing (for diagnostics only). */
 export function getMissingEmailEnvVars(): string[] {
-  const required = ["EMAIL_HOST", "EMAIL_USER", "EMAIL_PASS", "TO_EMAIL"] as const;
-  return required.filter((key) => !readEnvValue(key));
+  return EMAIL_ENV_KEYS.filter(({ key, aliases }) => !readFirstRuntimeEnv([key, ...aliases])).map(
+    ({ key }) => key
+  );
+}
+
+function resolveEmailPort(): number {
+  const raw = readFirstRuntimeEnv(["EMAIL_PORT", "SMTP_PORT"]);
+  if (!raw) return 465;
+  const port = Number(raw);
+  if (!Number.isFinite(port) || port <= 0) return 465;
+  return port;
 }
 
 export function getEmailConfig(): EmailConfig | null {
-  const host = readEnvValue("EMAIL_HOST");
-  const user = readEnvValue("EMAIL_USER");
-  const pass = readEnvValue("EMAIL_PASS").replace(/\s+/g, "");
-  const toEmail = readEnvValue("TO_EMAIL");
+  const host = readFirstRuntimeEnv(["EMAIL_HOST", "SMTP_HOST"]);
+  const user = readFirstRuntimeEnv(["EMAIL_USER", "SMTP_USER"]);
+  const pass = readFirstRuntimeEnv(["EMAIL_PASS", "SMTP_PASS", "SMTP_PASSWORD"]).replace(
+    /\s+/g,
+    ""
+  );
+  const toEmail = readFirstRuntimeEnv(["TO_EMAIL", "EMAIL_TO", "SMTP_TO"]);
 
   if (!host || !user || !pass || !toEmail) {
     return null;
   }
 
-  const port = Number(process.env.EMAIL_PORT ?? "465");
-  if (!Number.isFinite(port) || port <= 0) {
-    return null;
-  }
-
   return {
     host,
-    port,
+    port: resolveEmailPort(),
     user,
     pass,
     toEmail,
-    allowedOrigin: process.env.ALLOWED_ORIGIN?.trim() || null,
+    allowedOrigin: readRuntimeEnv("ALLOWED_ORIGIN") || null,
   };
+}
+
+export function getEmailConfigErrorMessage(context: "help" | "license" = "license"): string {
+  const missing = getMissingEmailEnvVars();
+  const label = context === "help" ? "Help email" : "License email";
+
+  if (missing.length > 0) {
+    const list = missing.join(", ");
+    if (isHostedRuntime()) {
+      return `${label} is not configured on the server. In Netlify (Site configuration → Environment variables), set ${list} for all deploy contexts, save, then trigger a new deploy. Values are only read at runtime — a rebuild is required after changing them.`;
+    }
+    return `${label} is not configured. Add ${list} to .env or .env.local and restart the dev server.`;
+  }
+
+  if (isHostedRuntime()) {
+    return `${label} is not configured on the server. Confirm EMAIL_* variables are set in your hosting dashboard and redeploy.`;
+  }
+
+  return `${label} is not configured. Please try again later.`;
 }
 
 export function isAllowedRequestOrigin(origin: string | null): boolean {
   const allowed = new Set<string>();
 
-  const configured = process.env.ALLOWED_ORIGIN?.trim();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  const configured = readRuntimeEnv("ALLOWED_ORIGIN");
+  const appUrl = readRuntimeEnv("NEXT_PUBLIC_APP_URL");
 
   if (configured) allowed.add(configured);
   if (appUrl) allowed.add(appUrl);

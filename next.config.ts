@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  // Keep nodemailer on the server; do not bundle SMTP env at build time.
+  serverExternalPackages: ["nodemailer"],
   images: {
     formats: ["image/avif", "image/webp"],
   },

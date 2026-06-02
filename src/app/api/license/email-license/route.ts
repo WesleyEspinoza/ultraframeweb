@@ -1,4 +1,5 @@
 import { checkoutSessionValidationError } from "@/lib/checkout-session";
+import { getMissingEmailEnvVars, isHostedRuntime } from "@/lib/email-config";
 import { deliverLicenseEmailForCheckout } from "@/lib/license-email-delivery";
 import type { RevealedLicense } from "@/lib/license-api";
 import { maskEmail } from "@/lib/email-transport";
@@ -71,5 +72,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.reason }, { status: 400 });
   }
 
-  return NextResponse.json({ error: result.message }, { status: 500 });
+  return NextResponse.json(
+    {
+      error: result.message,
+      ...(result.status === "error" ? { missing: getMissingEmailEnvVars(), hosted: isHostedRuntime() } : {}),
+    },
+    { status: 500 }
+  );
 }

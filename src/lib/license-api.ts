@@ -1,4 +1,5 @@
 import { friendlyStripeSessionError } from "@/lib/checkout-session";
+import { toUserError, UserErrors } from "@/lib/user-errors";
 
 export const LICENSE_API_BASE =
   process.env.LICENSE_API_BASE_URL?.replace(/\/$/, "") ||
@@ -74,7 +75,8 @@ async function parseJsonResponse<T>(res: Response): Promise<T> {
   }
 
   if (!res.ok) {
-    throw new LicenseApiError(extractApiErrorMessage(data), res.status);
+    const raw = extractApiErrorMessage(data);
+    throw new LicenseApiError(toUserError(raw, UserErrors.licenseService), res.status);
   }
 
   return data as T;

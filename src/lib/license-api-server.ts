@@ -4,6 +4,7 @@ import {
   normalizeLicenseSession,
   type RevealedLicense,
 } from "@/lib/license-api";
+import { toUserError, UserErrors } from "@/lib/user-errors";
 
 export async function proxyLicenseApi(
   path: string,
@@ -25,11 +26,11 @@ async function parseUpstreamJson<T>(res: Response): Promise<T> {
   }
 
   if (!res.ok) {
-    const message =
+    const raw =
       data && typeof data === "object" && "error" in data && typeof data.error === "string"
         ? data.error
         : "License service request failed.";
-    throw new LicenseApiError(message, res.status);
+    throw new LicenseApiError(toUserError(raw, UserErrors.licenseService), res.status);
   }
 
   return data as T;

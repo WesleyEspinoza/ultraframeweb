@@ -1,5 +1,6 @@
 import { INSTALLER_DOWNLOAD_URL } from "@/lib/installer-download";
 import { verifyPaidCheckoutSession } from "@/lib/verify-purchase";
+import { UserErrors, toUserError } from "@/lib/user-errors";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -18,16 +19,16 @@ export async function GET(request: Request) {
     const purchase = await verifyPaidCheckoutSession(sessionId);
     if (!purchase.paid) {
       return NextResponse.json(
-        { error: "Payment has not been completed for this session." },
+        { error: UserErrors.licenseVerify },
         { status: 403 }
       );
     }
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unable to verify your purchase. Please try again from your confirmation page.";
-    return NextResponse.json({ error: message }, { status: 403 });
+    console.error("[installer] verify failed:", error);
+    return NextResponse.json(
+      { error: toUserError(error, UserErrors.downloadVerify) },
+      { status: 403 }
+    );
   }
 
   return NextResponse.redirect(INSTALLER_DOWNLOAD_URL, 302);

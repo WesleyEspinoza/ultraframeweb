@@ -1,4 +1,5 @@
 import { createManagedPaymentsCheckoutSession } from "@/lib/create-managed-payments-checkout";
+import { isUserSafeMessage, UserErrors } from "@/lib/user-errors";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -24,12 +25,11 @@ export async function POST(request: Request) {
       url: result.url,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create checkout session.";
-    const status =
-      message.includes("STRIPE_SECRET_KEY") || message.includes("catalog")
-        ? 503
-        : 500;
-    return NextResponse.json({ error: message }, { status });
+    console.error("[checkout] session create failed:", error);
+    const message = error instanceof Error ? error.message : UserErrors.checkout;
+    return NextResponse.json(
+      { error: isUserSafeMessage(message) ? message : UserErrors.checkout },
+      { status: 503 }
+    );
   }
 }

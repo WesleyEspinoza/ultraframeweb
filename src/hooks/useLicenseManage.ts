@@ -7,6 +7,7 @@ import {
   listLicenseDevices,
   removeLicenseDevice,
 } from "@/lib/license-api";
+import { toUserError, UserErrors } from "@/lib/user-errors";
 import { useCallback, useState } from "react";
 
 export type UseLicenseManageResult = {
@@ -51,8 +52,8 @@ export function useLicenseManage(
       setDevices([]);
       setError(
         e instanceof LicenseApiError
-          ? e.message
-          : "Unable to load devices. Check your connection and try again."
+          ? toUserError(e.message, UserErrors.licenseManage)
+          : UserErrors.licenseManage
       );
       return false;
     } finally {
@@ -86,8 +87,8 @@ export function useLicenseManage(
         } else {
           setError(
             e instanceof LicenseApiError
-              ? e.message
-              : "Unable to activate device. Please try again."
+              ? toUserError(e.message, UserErrors.licenseActivate)
+              : UserErrors.licenseActivate
           );
         }
         return false;
@@ -114,8 +115,8 @@ export function useLicenseManage(
       } catch (e) {
         setError(
           e instanceof LicenseApiError
-            ? e.message
-            : "Unable to remove device. Please try again."
+            ? toUserError(e.message, UserErrors.licenseRemove)
+            : UserErrors.licenseRemove
         );
         return false;
       } finally {

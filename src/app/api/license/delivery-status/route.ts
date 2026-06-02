@@ -1,5 +1,6 @@
 import { checkoutSessionValidationError } from "@/lib/checkout-session";
 import { getLicenseEmailDeliveryStatus } from "@/lib/license-email-delivery";
+import { UserErrors, toUserError } from "@/lib/user-errors";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -16,7 +17,10 @@ export async function GET(request: Request) {
     const status = await getLicenseEmailDeliveryStatus(sessionId);
     return NextResponse.json(status);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to load delivery status.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[delivery-status] failed:", error);
+    return NextResponse.json(
+      { error: toUserError(error, UserErrors.generic) },
+      { status: 500 }
+    );
   }
 }

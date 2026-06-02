@@ -5,6 +5,7 @@ import {
   type RevealedLicense,
   revealLicense,
 } from "@/lib/license-api";
+import { toUserError, UserErrors } from "@/lib/user-errors";
 import { useEffect, useRef, useState } from "react";
 
 export type UseLicenseRevealResult = {
@@ -44,8 +45,8 @@ export function useLicenseReveal(revealToken: string | null): UseLicenseRevealRe
         if (cancelled) return;
         const message =
           e instanceof LicenseApiError
-            ? e.message
-            : "Unable to reveal your license. Please try again.";
+            ? toUserError(e.message, UserErrors.licenseReveal)
+            : UserErrors.licenseReveal;
         const isExpired =
           e instanceof LicenseApiError &&
           (e.status === 401 ||

@@ -4,10 +4,18 @@ import CheckoutClient from "@/components/CheckoutClient";
 import { buildCatalogPricing } from "@/lib/catalog-pricing";
 import { formatUsd } from "@/lib/sale";
 import { resolveStripeCatalog } from "@/lib/stripe-catalog";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Checkout | UltraFrame",
-  description: "Purchase UltraFrame Optimizer — one-time payment, instant download.",
+export const metadata: Metadata = {
+  title: "Checkout",
+  description:
+    "Purchase UltraFrame Optimizer — one-time payment, instant download, and license for up to 3 PCs.",
+  alternates: { canonical: "/checkout" },
+  openGraph: {
+    title: "Checkout | UltraFrame",
+    description: "Purchase UltraFrame Optimizer with secure Stripe checkout.",
+    url: "/checkout",
+  },
 };
 
 export default async function CheckoutPage() {

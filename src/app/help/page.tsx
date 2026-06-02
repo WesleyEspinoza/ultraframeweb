@@ -1,9 +1,17 @@
 import BackLink from "@/components/BackLink";
 import HelpForm from "@/components/HelpForm";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Help & support | UltraFrame",
-  description: "Contact UltraFrame support for help with licenses, installation, and billing.",
+export const metadata: Metadata = {
+  title: "Help & support",
+  description:
+    "Contact UltraFrame support for help with licenses, installation, billing, and Windows gaming optimization.",
+  alternates: { canonical: "/help" },
+  openGraph: {
+    title: "Help & support | UltraFrame",
+    description: "Get help with UltraFrame licenses, installation, and billing.",
+    url: "/help",
+  },
 };
 
 export default function HelpPage() {

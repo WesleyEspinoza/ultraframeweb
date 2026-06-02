@@ -1,9 +1,13 @@
 import BackLink from "@/components/BackLink";
 import LicenseManagePanel from "@/components/license/LicenseManagePanel";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Manage license | UltraFrame",
-  description: "View and manage UltraFrame license devices.",
+export const metadata: Metadata = {
+  title: "Manage license",
+  description:
+    "View and manage UltraFrame license devices. Activate or remove PCs on your license.",
+  alternates: { canonical: "/license/manage" },
+  robots: { index: false, follow: true },
 };
 
 export default function LicenseManagePage() {

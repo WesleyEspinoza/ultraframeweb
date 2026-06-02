@@ -5,6 +5,7 @@ import { useLicenseSession } from "@/hooks/useLicenseSession";
 import { ClarityEvents } from "@/lib/clarity-events";
 import { clarityUpgradeSession, trackClarityEvent } from "@/lib/clarity";
 import type { RevealedLicense } from "@/lib/license-api";
+import { UserErrors } from "@/lib/user-errors";
 import BackLink from "@/components/BackLink";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ErrorAlert from "./ErrorAlert";
@@ -75,9 +76,9 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
           return;
         }
 
-        setEmailError(data.error ?? data.message ?? "Could not send license email.");
+        setEmailError(data.error ?? data.message ?? UserErrors.licenseEmail);
       } catch {
-        setEmailError("Network error while sending license email. Refresh and try again.");
+        setEmailError("Unable to send your license email. Please try again in a few minutes.");
       } finally {
         setEmailSending(false);
       }

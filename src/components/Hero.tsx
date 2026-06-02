@@ -16,7 +16,6 @@ const STATS = [
 export default function Hero() {
   return (
     <section
-      id="main-content"
       aria-labelledby="hero-heading"
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden grid-bg"
     >

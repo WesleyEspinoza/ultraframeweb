@@ -1,5 +1,6 @@
 import { buildCatalogPricing } from "@/lib/catalog-pricing";
 import { resolveStripeCatalog } from "@/lib/stripe-catalog";
+import { UserErrors } from "@/lib/user-errors";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -28,8 +29,7 @@ export async function GET() {
         : null,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load catalog.";
-    const status = message.includes("STRIPE_SECRET_KEY") || message.includes("not configured") ? 503 : 500;
-    return NextResponse.json({ error: message }, { status });
+    console.error("[catalog] failed:", error);
+    return NextResponse.json({ error: UserErrors.pricing }, { status: 503 });
   }
 }

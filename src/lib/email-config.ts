@@ -84,23 +84,10 @@ export function getEmailConfig(): EmailConfig | null {
   };
 }
 
+import { UserErrors } from "@/lib/user-errors";
+
 export function getEmailConfigErrorMessage(context: "help" | "license" = "license"): string {
-  const missing = getMissingEmailEnvVars();
-  const label = context === "help" ? "Help email" : "License email";
-
-  if (missing.length > 0) {
-    const list = missing.join(", ");
-    if (isHostedRuntime()) {
-      return `${label} is not configured on the server. In Netlify (Site configuration → Environment variables), set ${list} for all deploy contexts, save, then trigger a new deploy. Values are only read at runtime — a rebuild is required after changing them.`;
-    }
-    return `${label} is not configured. Add ${list} to .env or .env.local and restart the dev server.`;
-  }
-
-  if (isHostedRuntime()) {
-    return `${label} is not configured on the server. Confirm EMAIL_* variables are set in your hosting dashboard and redeploy.`;
-  }
-
-  return `${label} is not configured. Please try again later.`;
+  return context === "help" ? UserErrors.helpUnavailable : UserErrors.licenseEmail;
 }
 
 export function isAllowedRequestOrigin(origin: string | null): boolean {

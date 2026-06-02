@@ -1,12 +1,11 @@
 import {
   getEmailConfig,
   getEmailConfigErrorMessage,
-  getMissingEmailEnvVars,
   isAllowedRequestOrigin,
-  isHostedRuntime,
 } from "@/lib/email-config";
 import { parseHelpFormBody } from "@/lib/help-form-validation";
 import { sendHelpEmail } from "@/lib/send-help-email";
+import { UserErrors } from "@/lib/user-errors";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -14,18 +13,13 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
   if (!isAllowedRequestOrigin(origin)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json({ error: UserErrors.forbidden }, { status: 403 });
   }
 
   const config = getEmailConfig();
   if (!config) {
-    const missing = getMissingEmailEnvVars();
     return NextResponse.json(
-      {
-        error: getEmailConfigErrorMessage("help"),
-        ...(missing.length > 0 ? { missing } : {}),
-        hosted: isHostedRuntime(),
-      },
+      { error: getEmailConfigErrorMessage("help") },
       { status: 503 }
     );
   }
@@ -34,7 +28,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json({ error: UserErrors.invalidRequest }, { status: 400 });
   }
 
   const parsed = parseHelpFormBody(body);
@@ -47,9 +41,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[help] send failed:", error);
-    return NextResponse.json(
-      { error: "Unable to send your message right now. Please try again later." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: UserErrors.helpSend }, { status: 500 });
   }
 }

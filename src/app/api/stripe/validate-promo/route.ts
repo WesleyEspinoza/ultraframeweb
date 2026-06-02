@@ -4,6 +4,7 @@ import {
   resolvePromotionCode,
 } from "@/lib/stripe-promotion-code";
 import { resolveStripeCatalog } from "@/lib/stripe-catalog";
+import { UserErrors } from "@/lib/user-errors";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json({ error: UserErrors.invalidRequest }, { status: 400 });
   }
 
   const code =
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
       : "";
 
   if (!code) {
-    return NextResponse.json({ error: "Enter a promotion code." }, { status: 400 });
+    return NextResponse.json({ error: UserErrors.promoEnter }, { status: 400 });
   }
 
   try {
@@ -28,10 +29,7 @@ export async function POST(request: Request) {
     const pricing = buildCatalogPricing(catalog);
 
     if (pricing.unitAmount == null || pricing.unitAmount <= 0) {
-      return NextResponse.json(
-        { error: "Pricing is not available. Try again shortly." },
-        { status: 503 }
-      );
+      return NextResponse.json({ error: UserErrors.pricing }, { status: 503 });
     }
 
     const resolved = await resolvePromotionCode(code);
@@ -44,17 +42,13 @@ export async function POST(request: Request) {
     return NextResponse.json({
       valid: true,
       code: resolved.data.code,
-      promotionCodeId: resolved.data.promotionCodeId,
       discountLabel: preview.discountLabel,
       compareAtPrice: preview.compareAtPrice,
       displayPrice: preview.displayPrice,
       savings: preview.savings,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to validate promotion code.";
-    const status =
-      message.includes("STRIPE_SECRET_KEY") || message.includes("not configured") ? 503 : 500;
-    return NextResponse.json({ error: message }, { status });
+    console.error("[validate-promo] failed:", error);
+    return NextResponse.json({ error: UserErrors.generic }, { status: 500 });
   }
 }

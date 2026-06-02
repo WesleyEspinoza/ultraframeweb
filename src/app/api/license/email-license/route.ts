@@ -1,8 +1,8 @@
 import { checkoutSessionValidationError } from "@/lib/checkout-session";
-import { getMissingEmailEnvVars, isHostedRuntime } from "@/lib/email-config";
 import { deliverLicenseEmailForCheckout } from "@/lib/license-email-delivery";
 import type { RevealedLicense } from "@/lib/license-api";
 import { maskEmail } from "@/lib/email-transport";
+import { UserErrors } from "@/lib/user-errors";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json({ error: UserErrors.invalidRequest }, { status: 400 });
   }
 
   const sessionId =
@@ -70,14 +70,8 @@ export async function POST(request: Request) {
   }
 
   if (result.status === "skipped") {
-    return NextResponse.json({ error: result.reason }, { status: 400 });
+    return NextResponse.json({ error: UserErrors.licenseVerify }, { status: 400 });
   }
 
-  return NextResponse.json(
-    {
-      error: result.message,
-      ...(result.status === "error" ? { missing: getMissingEmailEnvVars(), hosted: isHostedRuntime() } : {}),
-    },
-    { status: 500 }
-  );
+  return NextResponse.json({ error: result.message }, { status: 500 });
 }

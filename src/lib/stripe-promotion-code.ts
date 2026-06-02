@@ -2,6 +2,7 @@ import {
   applyCouponToUnitAmountCents,
   describeCouponDiscount,
 } from "@/lib/promo-pricing";
+import { UserErrors } from "@/lib/user-errors";
 import { getStripeClient } from "@/lib/stripe";
 import type Stripe from "stripe";
 
@@ -35,7 +36,7 @@ export async function resolvePromotionCodeByCustomerCode(
 export async function resolvePromotionCode(input: string): Promise<ResolveResult> {
   const trimmed = input.trim();
   if (!trimmed) {
-    return { ok: false, message: "Enter a promotion code." };
+    return { ok: false, message: UserErrors.promoEnter };
   }
 
   const stripe = getStripeClient();
@@ -44,14 +45,14 @@ export async function resolvePromotionCode(input: string): Promise<ResolveResult
   if (!listed) {
     return {
       ok: false,
-      message: `${promotionCodeErrorMessage(trimmed)} Make sure the code was created in the same Stripe mode (Test vs Live) as your API keys.`,
+      message: UserErrors.promoInvalid(trimmed),
     };
   }
 
   if (!listed.active) {
     return {
       ok: false,
-      message: `Promotion code "${listed.code ?? trimmed}" is inactive in Stripe.`,
+      message: UserErrors.promoUnavailable,
     };
   }
 
@@ -62,7 +63,7 @@ export async function resolvePromotionCode(input: string): Promise<ResolveResult
   if (promo.expires_at != null && promo.expires_at * 1000 < Date.now()) {
     return {
       ok: false,
-      message: `Promotion code "${promo.code}" has expired.`,
+      message: UserErrors.promoExpired,
     };
   }
 
@@ -73,7 +74,7 @@ export async function resolvePromotionCode(input: string): Promise<ResolveResult
   ) {
     return {
       ok: false,
-      message: `Promotion code "${promo.code}" has reached its redemption limit.`,
+      message: UserErrors.promoUnavailable,
     };
   }
 
@@ -81,7 +82,7 @@ export async function resolvePromotionCode(input: string): Promise<ResolveResult
   if (!coupon || coupon.valid === false) {
     return {
       ok: false,
-      message: `The coupon linked to "${promo.code}" is not valid.`,
+      message: UserErrors.promoUnavailable,
     };
   }
 
@@ -195,5 +196,5 @@ export function buildPromoPricePreview(
 }
 
 export function promotionCodeErrorMessage(customerCode: string): string {
-  return `Promotion code "${customerCode.trim()}" was not found.`;
+  return UserErrors.promoInvalid(customerCode);
 }

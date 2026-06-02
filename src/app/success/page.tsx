@@ -1,9 +1,11 @@
 import BackLink from "@/components/BackLink";
 import LicenseRevealFlow from "@/components/license/LicenseRevealFlow";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Order confirmed | UltraFrame",
-  description: "Reveal your UltraFrame license key after purchase.",
+export const metadata: Metadata = {
+  title: "Order confirmed",
+  description: "View your UltraFrame license and download the installer after purchase.",
+  robots: { index: false, follow: false },
 };
 
 type SuccessPageProps = {

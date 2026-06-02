@@ -6,6 +6,7 @@ import {
 } from "@/lib/license-api-server";
 import type { RevealedLicense } from "@/lib/license-api";
 import { sendLicenseEmail } from "@/lib/send-license-email";
+import { UserErrors, toUserError } from "@/lib/user-errors";
 import { verifyPaidCheckoutSession } from "@/lib/verify-purchase";
 import { getStripeClient } from "@/lib/stripe";
 
@@ -57,20 +58,19 @@ export async function deliverLicenseEmailForCheckout(
   } catch (error) {
     return {
       status: "error",
-      message: error instanceof Error ? error.message : "Unable to verify checkout.",
+      message: toUserError(error, UserErrors.licenseVerify),
     };
   }
 
   if (!purchase.paid) {
-    return { status: "skipped", reason: "Checkout is not paid." };
+    return { status: "skipped", reason: UserErrors.licenseVerify };
   }
 
   const recipient = purchase.customerEmail?.trim();
   if (!recipient) {
     return {
       status: "skipped",
-      reason:
-        "No email on this checkout session. Use Stripe checkout with customer email collection enabled.",
+      reason: UserErrors.licenseVerify,
     };
   }
 
@@ -94,13 +94,12 @@ export async function deliverLicenseEmailForCheckout(
       return { status: "pending", message: resolved.message };
     }
     if (resolved.status === "error") {
-      return { status: "error", message: resolved.message };
+      return { status: "error", message: UserErrors.licenseService };
     }
     if (resolved.status === "already_revealed") {
       return {
         status: "pending",
-        message:
-          "License was already revealed on the website. If you did not receive an email, use Help & support with your checkout email.",
+        message: UserErrors.licenseAlreadyRevealed,
       };
     }
     license = resolved.license;
@@ -117,10 +116,9 @@ export async function deliverLicenseEmailForCheckout(
     return { status: "sent", email: recipient };
   } catch (error) {
     console.error("[license-email] send failed:", error);
-    const detail = error instanceof Error ? error.message : "Unknown SMTP error";
     return {
       status: "error",
-      message: `Unable to send license email (${detail}). Check SMTP settings or try again.`,
+      message: UserErrors.licenseEmail,
     };
   }
 }
@@ -145,7 +143,7 @@ async function pollAndRevealLicense(
       if (session.state === "error") {
         return {
           status: "error",
-          message: session.message ?? "License session error.",
+          message: UserErrors.licenseService,
         };
       }
 
@@ -154,9 +152,8 @@ async function pollAndRevealLicense(
         return { status: "ok", license };
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "License service unavailable.";
-      return { status: "error", message };
+      console.error("[license-email] poll failed:", error);
+      return { status: "error", message: UserErrors.licenseService };
     }
 
     await sleep(POLL_INTERVAL_MS);
@@ -164,7 +161,7 @@ async function pollAndRevealLicense(
 
   return {
     status: "pending",
-    message: "License is still being generated. Keep this page open or check back shortly.",
+    message: UserErrors.licensePending,
   };
 }
 

@@ -24,7 +24,9 @@ export async function verifyPaidCheckoutSession(
 
   let session: Stripe.Checkout.Session;
   try {
-    session = await stripe.checkout.sessions.retrieve(sessionId);
+    session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["customer"],
+    });
   } catch (e) {
     if (e instanceof Stripe.errors.StripeInvalidRequestError) {
       throw new Error(friendlyStripeSessionError(e.message));
@@ -37,10 +39,19 @@ export async function verifyPaidCheckoutSession(
     session.status === "complete" ||
     (await isCompletedCheckout(sessionId));
 
+  const customer =
+    session.customer && typeof session.customer === "object" ? session.customer : null;
+
+  const customerEmail =
+    session.customer_details?.email ??
+    session.customer_email ??
+    (customer && "email" in customer && typeof customer.email === "string"
+      ? customer.email
+      : null);
+
   return {
     paid,
-    customerEmail:
-      session.customer_details?.email ?? session.customer_email ?? null,
+    customerEmail,
     checkoutSessionId: session.id,
   };
 }

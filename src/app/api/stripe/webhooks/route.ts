@@ -1,4 +1,4 @@
-import { queueLicenseEmailDelivery } from "@/lib/license-email-delivery";
+import { runLicenseEmailDeliveryAfterCheckout } from "@/lib/license-email-delivery";
 import { getStripeClient, getStripeWebhookSecret } from "@/lib/stripe";
 import { recordCompletedCheckout } from "@/lib/stripe-orders";
 import { headers } from "next/headers";
@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -30,7 +31,10 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     await recordCompletedCheckout(session);
     if (session.id) {
-      queueLicenseEmailDelivery(session.id);
+      const result = await runLicenseEmailDeliveryAfterCheckout(session.id);
+      if (result.status === "error" || result.status === "pending") {
+        console.error("[license-email] webhook delivery:", session.id, result);
+      }
     }
   }
 

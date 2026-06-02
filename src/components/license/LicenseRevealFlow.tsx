@@ -4,8 +4,9 @@ import { useLicenseReveal } from "@/hooks/useLicenseReveal";
 import { useLicenseSession } from "@/hooks/useLicenseSession";
 import { ClarityEvents } from "@/lib/clarity-events";
 import { clarityUpgradeSession, trackClarityEvent } from "@/lib/clarity";
+import type { RevealedLicense } from "@/lib/license-api";
 import BackLink from "@/components/BackLink";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ErrorAlert from "./ErrorAlert";
 import LicenseActionButtons from "./LicenseActionButtons";
 import LicenseKeyDisplay from "./LicenseKeyDisplay";
@@ -24,9 +25,65 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
 
   const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus | null>(null);
   const [emailNotice, setEmailNotice] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSending, setEmailSending] = useState(false);
 
   const trackedRef = useRef<string | null>(null);
-  const emailAttemptRef = useRef<string | null>(null);
+  const emailSentRef = useRef(false);
+
+  const requestLicenseEmail = useCallback(
+    async (licensePayload?: RevealedLicense) => {
+      if (!sessionId || emailSentRef.current) return;
+
+      setEmailSending(true);
+      setEmailError(null);
+
+      try {
+        const res = await fetch("/api/license/email-license", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            ...(licensePayload ? { license: licensePayload } : {}),
+          }),
+        });
+        const data = (await res.json().catch(() => ({}))) as {
+          sent?: boolean;
+          maskedEmail?: string;
+          error?: string;
+          message?: string;
+          pending?: boolean;
+        };
+
+        if (res.ok && data.sent) {
+          emailSentRef.current = true;
+          trackClarityEvent(ClarityEvents.LICENSE_EMAIL_SENT);
+          setDeliveryStatus({
+            sent: true,
+            maskedEmail: data.maskedEmail ?? null,
+          });
+          setEmailNotice(
+            data.maskedEmail
+              ? `Your license was emailed to ${data.maskedEmail}.`
+              : "Your license was emailed to your checkout address."
+          );
+          return;
+        }
+
+        if (res.status === 202 || data.pending) {
+          setEmailNotice("Generating your license — we will email it shortly…");
+          return;
+        }
+
+        setEmailError(data.error ?? data.message ?? "Could not send license email.");
+      } catch {
+        setEmailError("Network error while sending license email. Refresh and try again.");
+      } finally {
+        setEmailSending(false);
+      }
+    },
+    [sessionId]
+  );
 
   useEffect(() => {
     if (!sessionId) return;
@@ -39,10 +96,19 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!cancelled && data) {
+          const sent = Boolean(data.sent);
           setDeliveryStatus({
-            sent: Boolean(data.sent),
+            sent,
             maskedEmail: data.maskedEmail ?? null,
           });
+          if (sent) {
+            emailSentRef.current = true;
+            setEmailNotice(
+              data.maskedEmail
+                ? `Your license was emailed to ${data.maskedEmail}.`
+                : "Your license was emailed to your checkout address."
+            );
+          }
         }
       })
       .catch(() => {});
@@ -68,12 +134,6 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
   }, [state]);
 
   useEffect(() => {
-    if (revealError) {
-      trackClarityEvent(ClarityEvents.LICENSE_REVEAL_ERROR);
-    }
-  }, [revealError]);
-
-  useEffect(() => {
     if (
       revealError &&
       sessionId &&
@@ -84,36 +144,20 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
   }, [revealError, expired, sessionId, retrySession]);
 
   useEffect(() => {
-    if (!sessionId || !license) return;
-    if (emailAttemptRef.current === license.key) return;
-    emailAttemptRef.current = license.key;
+    if (!sessionId || emailSentRef.current) return;
 
-    void fetch("/api/license/email-license", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, license }),
-    })
-      .then(async (res) => {
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.sent) {
-          trackClarityEvent(ClarityEvents.LICENSE_EMAIL_SENT);
-          setDeliveryStatus({
-            sent: true,
-            maskedEmail: data.maskedEmail ?? null,
-          });
-          setEmailNotice(
-            data.maskedEmail
-              ? `A copy of your license was sent to ${data.maskedEmail}.`
-              : "A copy of your license was sent to your checkout email."
-          );
-        } else if (res.status === 202) {
-          setEmailNotice("Your license will be emailed once it is ready.");
-        }
-      })
-      .catch(() => {
-        setEmailNotice(null);
-      });
-  }, [sessionId, license]);
+    if (state === "pending") {
+      void requestLicenseEmail();
+      const intervalId = setInterval(() => {
+        if (!emailSentRef.current) void requestLicenseEmail();
+      }, 4000);
+      return () => clearInterval(intervalId);
+    }
+
+    if (license) {
+      void requestLicenseEmail(license);
+    }
+  }, [sessionId, state, license, requestLicenseEmail]);
 
   if (!sessionId) {
     return (
@@ -142,8 +186,28 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
           Payment confirmed. Generating your license…
         </p>
         <p className="text-xs text-slate-600 font-mono">
-          When your key is ready, we will email it to the address you used at checkout.
+          We will email your key to the address you used at checkout.
+          {emailSending ? " Sending…" : ""}
         </p>
+        {emailNotice && (
+          <p className="text-xs text-slate-500 font-mono text-center" role="status">
+            {emailNotice}
+          </p>
+        )}
+        {emailError && (
+          <div className="space-y-2">
+            <p className="text-xs text-red-400" role="alert">
+              {emailError}
+            </p>
+            <button
+              type="button"
+              onClick={() => void requestLicenseEmail()}
+              className="text-xs font-mono text-cyan-400 hover:text-cyan-300 underline"
+            >
+              Retry email
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -169,6 +233,11 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
             </>
           )}
         </p>
+        {emailError && (
+          <p className="text-xs text-red-400" role="alert">
+            {emailError}
+          </p>
+        )}
         <LicenseActionButtons sessionId={sessionId} />
       </div>
     );
@@ -201,6 +270,21 @@ export default function LicenseRevealFlow({ sessionId }: { sessionId: string | n
             <p className="text-xs text-slate-500 font-mono text-center" role="status">
               {emailNotice}
             </p>
+          )}
+          {emailError && (
+            <div className="text-center space-y-2">
+              <p className="text-xs text-red-400" role="alert">
+                {emailError}
+              </p>
+              <button
+                type="button"
+                onClick={() => void requestLicenseEmail(license)}
+                disabled={emailSending}
+                className="text-xs font-mono text-cyan-400 hover:text-cyan-300 underline disabled:opacity-50"
+              >
+                {emailSending ? "Sending…" : "Resend license email"}
+              </button>
+            </div>
           )}
           <LicenseKeyDisplay license={license} sessionId={sessionId} />
         </div>

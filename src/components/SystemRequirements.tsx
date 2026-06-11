@@ -185,7 +185,7 @@ export default function SystemRequirements() {
           <SpecTable
             icon={Monitor}
             title="UltraFrame optimizer"
-            subtitle="Gaming tweaks & reports"
+            subtitle="Gaming performance optimizations"
             rows={OPTIMIZER_SPECS}
           />
           <SpecTable

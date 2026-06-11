@@ -1,57 +1,52 @@
 "use client";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Cpu, Gamepad2, Trash2, Zap, Monitor, Settings2, BarChart3, MemoryStick, Network, Bot } from "lucide-react";
+import { Cpu, Gamepad2, Trash2, Zap, Monitor, Settings2, MemoryStick, Network, Bot } from "lucide-react";
 
 const FEATURES = [
   {
-    icon: Gamepad2, title: "Game Mode Mastery",
-    desc: "Activates and fully configures Windows Game Mode, HPET, and scheduler priority so every CPU cycle goes to your game — not background noise.",
+    icon: Gamepad2, title: "Maximize In-Game Frame Rates",
+    desc: "Windows Game Mode, scheduler priority, and GPU scheduling tuned so every CPU cycle and GPU frame goes to your game — not background noise.",
     accent: "var(--neon-cyan)",
   },
   {
-    icon: Cpu, title: "CPU Unshackled",
-    desc: "Disables CPU throttling, enables High Performance power plan, and configures processor parking — targeting maximum sustained CPU performance for gaming workloads.",
+    icon: Cpu, title: "Get More Performance From Your Existing Hardware",
+    desc: "Unlock sustained CPU and GPU performance without buying new parts. Power plans, throttling limits, and processor parking configured for gaming workloads.",
     accent: "var(--neon-blue)",
   },
   {
-    icon: MemoryStick, title: "RAM & VRAM Freed",
-    desc: "Flushes standby memory, optimizes paging files, and eliminates memory-hogging services so your game gets the full pool.",
+    icon: MemoryStick, title: "Reduce Stutters During Intense Gameplay",
+    desc: "Free up RAM and VRAM before you queue up. Standby memory flushed, paging optimized, and memory-hogging services cleared for smoother 1% lows.",
     accent: "var(--neon-cyan)",
   },
   {
-    icon: Network, title: "Network Latency Killed",
-    desc: "Nagle's Algorithm disabled, TCP/IP stack tuned, DNS prefetched. May help reduce ping and packet loss for a smoother online experience.",
+    icon: Network, title: "Lower Ping & Faster Online Response Times",
+    desc: "Network stack tuned for competitive play — reduced latency, faster packet delivery, and more consistent online response in every match.",
     accent: "var(--neon-green)",
   },
   {
-    icon: Trash2, title: "Startup Cleaner",
-    desc: "Identifies and disables non-essential startup programs, services, and scheduled tasks dragging your boot — and your game — down.",
+    icon: Trash2, title: "Remove Hidden Performance Drains",
+    desc: "Kill the startup programs, services, and background tasks silently eating your FPS. Boot faster, play smoother, stay focused on the game.",
     accent: "var(--neon-cyan)",
   },
   {
-    icon: Monitor, title: "Display Optimized",
-    desc: "Sets correct refresh rate, disables VSync overhead, configures DWM and hardware-accelerated GPU scheduling for tear-free, low-latency frames.",
+    icon: Monitor, title: "Tear-Free, Low-Latency Display",
+    desc: "Correct refresh rate, reduced display overhead, and hardware-accelerated GPU scheduling for frames that feel instant on every click.",
     accent: "var(--neon-blue)",
   },
   {
-    icon: Zap, title: "Safe & Reversible",
-    desc: "Every change is logged to a restore point before it's applied. One click rolls everything back. Zero risk, maximum reward.",
+    icon: Zap, title: "Safe & Fully Reversible",
+    desc: "Every change backed by a restore point before it's applied. One click rolls everything back — zero risk, maximum performance gains.",
     accent: "var(--neon-green)",
   },
   {
-    icon: Settings2, title: "50+ Tweaks Applied",
-    desc: "Registry fixes, services disabled, visual effects stripped — all the deep Windows settings enthusiasts spend hours hunting down, done automatically.",
+    icon: Settings2, title: "50+ Optimizations, One Click",
+    desc: "All the deep Windows tweaks enthusiasts spend hours hunting down — registry fixes, service tuning, visual overhead stripped — applied automatically.",
     accent: "var(--neon-cyan)",
   },
   {
-    icon: BarChart3, title: "Before & After Report",
-    desc: "UltraFrame benchmarks your system before and after, generating a clear report showing exactly what changed and the performance delta.",
-    accent: "var(--neon-blue)",
-  },
-  {
-    icon: Bot, title: "AI Tech Assistant",
-    desc: "A local AI assistant built into the app. Ask it anything about your PC — what a setting does, why something changed, or what to try next. Runs entirely on your machine. No data leaves your PC.",
+    icon: Bot, title: "Your Personal Performance Technician",
+    desc: "Ask about FPS drops, stutters, upgrades, or bottlenecks. Local AI runs on your machine — no subscriptions, no cloud, no data collection.",
     accent: "var(--neon-cyan)",
   },
 ];
@@ -81,7 +76,7 @@ export default function Features() {
             style={{ color: "var(--neon-cyan)" }}
             aria-hidden="true"
           >
-            // What We Optimize
+            // What You Get
           </motion.p>
           <motion.h2
             id="features-heading"
@@ -89,15 +84,15 @@ export default function Features() {
             transition={{ delay: 0.1 }}
             className="font-display text-4xl md:text-5xl font-extrabold text-white uppercase tracking-tight"
           >
-            Every Layer.{" "}
-            <span className="shimmer-text">Every Setting.</span>
+            Real Gaming{" "}
+            <span className="shimmer-text">Outcomes.</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ delay: 0.2 }}
             className="text-slate-500 text-lg mt-4 max-w-2xl mx-auto"
           >
-            UltraFrame attacks performance at the OS level — the same tweaks pro esports technicians apply by hand, delivered in one guided workflow.
+            Higher FPS, lower input lag, smoother 1% lows — the same results pro esports technicians deliver by hand, applied automatically in minutes.
           </motion.p>
         </div>
 

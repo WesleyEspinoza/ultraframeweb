@@ -1,11 +1,13 @@
 import JsonLd from "@/components/JsonLd";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import TrustBar from "@/components/TrustBar";
+import PerformanceResults from "@/components/PerformanceResults";
+import AIAssistant from "@/components/AIAssistant";
 import Features from "@/components/Features";
+import Comparison from "@/components/Comparison";
 import SystemRequirements from "@/components/SystemRequirements";
-import SocialProof from "@/components/SocialProof";
 import Pricing from "@/components/Pricing";
+import MoneyBackGuarantee from "@/components/MoneyBackGuarantee";
 import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
@@ -30,11 +32,13 @@ export default function Home() {
       <main id="main-content" className="min-h-screen bg-[#020408]">
         <Navbar />
         <Hero />
-        <TrustBar />
+        <PerformanceResults />
+        <AIAssistant />
         <Features />
+        <Comparison />
         <SystemRequirements />
-        <SocialProof />
         <Pricing />
+        <MoneyBackGuarantee />
         <FAQ />
         <FinalCTA />
         <Footer />

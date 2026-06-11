@@ -31,8 +31,8 @@ export default function FinalCTA() {
           transition={{ delay: 0.1 }}
           className="font-display text-5xl md:text-7xl font-black text-white uppercase tracking-tight leading-tight mb-6"
         >
-          Your PC Has More{" "}
-          <span className="shimmer-text">In It.</span>
+          More FPS.{" "}
+          <span className="shimmer-text">Less Lag.</span>
         </motion.h2>
 
         <motion.p
@@ -42,7 +42,7 @@ export default function FinalCTA() {
           transition={{ delay: 0.2 }}
           className="text-xl text-slate-400 max-w-2xl mx-auto mb-12"
         >
-          Stop leaving frames on the table. Get the right settings dialed in from day one — no reinstall, no guesswork, no wasted hours.
+          Stop losing performance to Windows. Get smoother gameplay, lower latency, and better 1% lows — in minutes, not hours.
         </motion.p>
 
         <motion.div
@@ -57,7 +57,7 @@ export default function FinalCTA() {
             className="group relative inline-block px-12 py-5 font-display text-sm font-extrabold tracking-widest uppercase text-black rounded-xl transition-all duration-300 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-400"
             style={{ background: "var(--neon-cyan)", boxShadow: "0 0 60px rgba(0,245,255,0.5), 0 8px 30px rgba(0,0,0,0.5)" }}
           >
-            <span className="relative z-10">Get UltraFrame</span>
+            <span className="relative z-10">Download UltraFrame</span>
             <div className="absolute inset-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300" style={{ background: "linear-gradient(135deg, var(--neon-green), var(--neon-cyan))" }} aria-hidden="true" />
           </a>
         </motion.div>

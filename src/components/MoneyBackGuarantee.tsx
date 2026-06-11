@@ -45,15 +45,15 @@ export default function MoneyBackGuarantee() {
             30-Day Money-Back Guarantee
           </h2>
           <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-4 leading-relaxed">
-            Refunds are available within 30 days of purchase only if you have not successfully run
-            the optimizer. Once optimizations are applied to your system, your license is considered
-            delivered and the purchase becomes final.
+            Refunds are available within 30 days of purchase only if you have not registered a
+            computer to your license. Once a device is registered, the sale is final and refunds
+            are no longer eligible.
           </p>
           <p className="text-slate-500 text-sm max-w-2xl mx-auto leading-relaxed">
-            If you run UltraFrame, see performance changes, and later request a refund, that request
-            will not be approved. Refunds after successful use — including cases where you simply
-            change your mind — are not eligible. For technical problems preventing use, contact
-            support first. We will work with you to resolve the issue before any refund is considered.
+            Registering a computer activates your license and confirms delivery of the software.
+            Refund requests made after device registration — including if you change your mind —
+            will not be approved. If you have a technical issue before registering, contact support
+            and we will work with you to resolve it.
           </p>
         </motion.div>
       </div>
